@@ -1,0 +1,40 @@
+Verifikasi tambahan API (2026-11-05). Tidak ada data yang dibuat atau diubah: semua permintaan menggunakan id yang tidak ada atau badan tidak valid.
+
+### GET /api/health
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+### PUT id tidak ada (999999) dengan data valid -> 404
+HTTP/1.1 404 NOT FOUND
+Content-Type: application/json
+
+### DELETE id tidak ada (999999) -> 404
+HTTP/1.1 404 NOT FOUND
+Content-Type: application/json
+
+### POST badan bukan JSON -> 400
+HTTP/1.1 400 BAD REQUEST
+Content-Type: application/json
+
+### POST tanpa badan -> 400
+HTTP/1.1 400 BAD REQUEST
+Content-Type: application/json
+
+### POST tipe salah (year string, stock boolean) -> 400
+HTTP/1.1 400 BAD REQUEST
+Content-Type: application/json
+
+### GET id bukan angka (/api/books/abc) -> 404
+HTTP/1.1 404 NOT FOUND
+Content-Type: text/html; charset=utf-8
+
+### Metode tidak didukung: PATCH /api/books -> 405
+HTTP/1.1 405 METHOD NOT ALLOWED
+Content-Type: text/html; charset=utf-8
+
+### Endpoint tidak ada: GET /api/tidakada -> 404
+HTTP/1.1 404 NOT FOUND
+Content-Type: text/html; charset=utf-8
+
+### Konsistensi: GET /api/books
+{"data":[{"author":"GUS RUSDI","category":"Pendidikan","id":2,"stock":1000,"title":"REKAYASA AGAMA","year":2022},{"author":"AMBATUKAM","category":"Teknologi","id":1,"stock":100,"title":"DASAR TELEKOMUNIKASI","year":2021}],"total":2}

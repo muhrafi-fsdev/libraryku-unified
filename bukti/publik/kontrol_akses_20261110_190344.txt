@@ -1,0 +1,52 @@
+== Membaca tanpa login tetap boleh (mode publik read-only) ==
+PASS GET /api/sql/health tanpa login -> 200 | HTTP 200
+PASS GET /api/nosql/health tanpa login -> 200 | HTTP 200
+PASS GET /api/sql/books tanpa login -> 200 | HTTP 200
+PASS GET /api/nosql/books tanpa login -> 200 | HTTP 200
+PASS GET /api/health tanpa login -> 200 | HTTP 200
+PASS GET /api/books tanpa login -> 200 | HTTP 200
+PASS halaman utama tanpa login -> 200
+== Menulis tanpa login ditolak (semua endpoint tulis) ==
+PASS POST /api/sql/books tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS PUT /api/sql/books/1 tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS DELETE /api/sql/books/1 tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS POST /api/nosql/books tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS PUT /api/nosql/books/507f1f77bcf86cd799439011 tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS DELETE /api/nosql/books/507f1f77bcf86cd799439011 tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS POST /api/books tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS PUT /api/books/1 tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS DELETE /api/books/1 tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+== Kredensial salah ditolak ==
+PASS POST dengan kata sandi salah -> 401 | HTTP 401
+PASS POST dengan nama pengguna salah -> 401 | HTTP 401
+== Perlindungan CSRF (header X-Requested-With wajib untuk tulis) ==
+PASS login benar tetapi tanpa header aplikasi -> 403 | HTTP 403
+PASS DELETE tanpa header aplikasi -> 403 | HTTP 403
+PASS POST ala form text/plain walau login benar -> 400 | HTTP 400
+PASS preflight CORS lintas-origin tidak diberi izin | HTTP 403
+== Dengan login yang benar, CRUD tetap berfungsi di kedua database ==
+PASS sql POST dengan login -> 201 | HTTP 201
+PASS sql PUT dengan login -> 200 | HTTP 200
+PASS sql DELETE dengan login -> 200 | HTTP 200
+PASS sql data benar-benar terhapus (GET 404) | HTTP 404
+PASS nosql POST dengan login -> 201 | HTTP 201
+PASS nosql PUT dengan login -> 200 | HTTP 200
+PASS nosql DELETE dengan login -> 200 | HTTP 200
+PASS nosql data benar-benar terhapus (GET 404) | HTTP 404
+== Kredensial tidak diteruskan ke backend dan tidak bocor ==
+PASS galat validasi tetap JSON tanpa data sensitif | HTTP 400
+== Pembatasan laju untuk operasi tulis ==
+PASS rentetan tulis (percobaan login salah) dibatasi: ada 429 | 6x401, 19x429
+PASS balasan 429 berformat JSON + Retry-After | HTTP 429
+PASS 30 pembacaan cepat tetap normal (batas baca longgar) | 30x200
+== Header keamanan pada semua jenis respons ==
+PASS header keamanan lengkap pada respons GET 200 | lengkap
+PASS header keamanan lengkap pada respons 401 | lengkap
+PASS header keamanan lengkap pada respons 403 | lengkap
+PASS Server tidak menampilkan versi | nginx
+PASS badan 40 KB ditolak (413) | HTTP 413
+== Port ==
+PASS 8081 hanya mendengarkan di 127.0.0.1 (tidak di 0.0.0.0/[::]) | 127.0.0.1:8081
+PASS tidak ada listener 27017/5432/5000 milik LibraryKu di antarmuka publik
+
+RINGKASAN: 41 PASS, 0 FAIL dari 41

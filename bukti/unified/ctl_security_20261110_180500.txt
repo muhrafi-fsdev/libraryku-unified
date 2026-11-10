@@ -1,0 +1,58 @@
+=== SECURITY (baca saja, tanpa menampilkan variabel lingkungan) | 2026-11-10 18:05:00 WIB ===
+/libraryku-project1-backend-1: user="" readonlyRootfs=false capDrop=<no value> secOpt=<no value> memLimit=0 nanoCpus=0 pids=<no value> privileged=false restart=unless-stopped image=libraryku-project1-backend
+/libraryku-project1-backend-nosql-1: user="appuser" readonlyRootfs=true capDrop=[ALL] secOpt=[no-new-privileges:true] memLimit=268435456 nanoCpus=500000000 pids=150 privileged=false restart=unless-stopped image=libraryku-project1-backend-nosql
+/libraryku-project1-database-1: user="" readonlyRootfs=false capDrop=<no value> secOpt=<no value> memLimit=0 nanoCpus=0 pids=<no value> privileged=false restart=unless-stopped image=postgres:16-alpine
+/libraryku-project1-frontend-1: user="" readonlyRootfs=false capDrop=<no value> secOpt=<no value> memLimit=0 nanoCpus=0 pids=<no value> privileged=false restart=unless-stopped image=nginx:1.28-alpine
+/libraryku-project1-mongodb-1: user="" readonlyRootfs=false capDrop=<no value> secOpt=[no-new-privileges:true] memLimit=671088640 nanoCpus=1000000000 pids=300 privileged=false restart=unless-stopped image=mongo:7.0.45
+--- pengguna proses di backend-nosql ---
+uid=10001(appuser) gid=999(appuser) groups=999(appuser)
+--- port 27017 di host harus TIDAK ada ---
+tidak ada listener 27017 (benar)
+--- pustaka Python backend-nosql (untuk pemeriksaan kerentanan) ---
+WARNING: The directory '/home/appuser/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+blinker==1.9.0
+click==8.5.1
+dnspython==2.9.2
+Flask==3.1.3
+gunicorn==23.0.0
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.4
+packaging==26.3
+pip==25.0.1
+pymongo==4.19.0
+Werkzeug==3.1.9
+--- pustaka Python backend SQL ---
+blinker==1.9.0
+click==8.5.0
+Flask==3.1.3
+gunicorn==23.0.0
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.4
+packaging==26.3
+pip==25.0.1
+psycopg2-binary==2.9.13
+Werkzeug==3.1.9
+--- konfigurasi Nginx aktif (header dan router) ---
+    server_tokens off;
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    client_max_body_size 16k;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "no-referrer" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" always;
+    location /api/sql/ {
+        rewrite ^/api/sql/(.*)$ /api/$1 break;
+        proxy_pass $sql_upstream;
+        error_page 502 503 504 = @api_down;
+    location /api/nosql/ {
+        proxy_pass $nosql_upstream;
+        error_page 502 503 504 = @api_down;
+    location /api/ {
+        proxy_pass $legacy_upstream;
+        error_page 502 503 504 = @api_down;
+    location @api_down {
+        add_header Cache-Control "no-store" always;
+    location / {

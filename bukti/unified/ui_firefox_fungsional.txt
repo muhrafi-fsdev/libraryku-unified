@@ -1,0 +1,41 @@
+Uji UI LibraryKu Unified di Firefox 140 ESR (Marionette), aplikasi dan database asli, buku uji [UJI-UI-*]
+PASS awal: SQL punya data asli, NoSQL terpisah | sql=3 nosql=0
+PASS mode awal SQL (radio, banner, status) | PostgreSQL terhubung
+PASS navigasi 5 menu | Beranda,Katalog,Dashboard,Perbandingan,Tentang
+PASS rute katalog
+PASS rute dashboard
+PASS rute perbandingan
+PASS rute tentang
+PASS rute beranda
+PASS perbandingan: status kedua DB terhubung | Terhubung / Terhubung
+PASS perbandingan: jumlah = API | 3 / 0
+PASS perbandingan: contoh JSON SQL dari API (id integer) | { "author": "AHMAD TEMOLA", "category": "Teknologi", "id": 10, "stock": 10000, "title": "T
+PASS perbandingan: ukur waktu menghasilkan 2 baris angka nyata | SQL: PostgreSQL22.5 ms12.0 ms29.0 ms10 || NoSQL: MongoDB7.5 ms5.0 ms11.0 ms10
+PASS ganti ke NoSQL: radio, banner, status, body | MongoDB terhubung
+PASS NoSQL: daftar = API NoSQL (terpisah dari SQL) | 0 baris, stat 0/0/0
+PASS NoSQL: empty state tampil
+PASS tombol tambah menyebut database aktif | Tambah buku ke MongoDB
+PASS form NoSQL: petunjuk menyebut MongoDB | Semua kolom wajib diisi. Disimpan ke MongoDB.
+PASS NoSQL create: POST /api/nosql/books 201 | ["POST","/api/nosql/books",201]
+PASS NoSQL: baris baru dengan id ObjectId (24 heks) | 6af2fe834cadbb1c89866e6b
+PASS toast menyebut MongoDB | Buku “[UJI-UI-NOSQL] Buku Mongo” ditambahkan ke MongoDB.
+PASS SQL TIDAK ikut berubah
+PASS NoSQL: pencarian jalan
+PASS NoSQL edit: dialog terisi & petunjuk id | Mengubah buku dengan id 6af2fe834cadbb1c89866e6b di MongoDB. Simpan perubahan atau batalkan.
+PASS NoSQL update: PUT /api/nosql/books/{id} 200 | ["PUT","/api/nosql/books/6af2fe834cadbb1c89866e6b",200]
+PASS NoSQL update: GET id sesuai
+PASS filter dibersihkan otomatis dan baris terlihat
+PASS Katalog (mode NoSQL): hanya buku Mongo | 1 buku
+PASS Katalog ganti ke SQL: buku Mongo hilang, buku SQL muncul | 3 buku
+PASS mode tersimpan di sesi (refresh akan memakai SQL)
+PASS SQL create: POST /api/sql/books 201 | ["POST","/api/sql/books",201]
+PASS SQL: id angka | 67
+PASS SQL update: PUT /api/sql/books/{id} 200 | ["PUT","/api/sql/books/67",200]
+PASS NoSQL tidak ikut berubah oleh aksi SQL
+PASS hapus SQL: dialog menyebut judul dan PostgreSQL | PostgreSQL (SQL)
+PASS SQL delete: DELETE /api/sql/books/{id} 200, data kembali | ["DELETE","/api/sql/books/67",200]
+PASS balapan: respons SQL yang terlambat tidak menimpa tampilan NoSQL | 1 baris; MongoDB terhubung
+PASS hapus NoSQL: dialog menyebut MongoDB
+PASS NoSQL delete: DELETE /api/nosql/books/{id} 200 dan koleksi kembali | ["DELETE","/api/nosql/books/6af2fe834cadbb1c89866e6b",200]
+PASS galat JS
+PASS tanpa pelanggaran CSP

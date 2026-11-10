@@ -1,0 +1,9 @@
+=== LOGIN | 2026-11-10 19:12:06 WIB ===
+Aksi: menghubungkan Kali ke akun Tailscale Anda sebagai perangkat bernama 'libraryku-kali'. Skrip akan mencetak URL; buka di browser dan setujui perangkat. Tidak ada kunci yang disimpan di repository.
+Lanjut? [y/N] 
+To authenticate, visit:
+
+	https://login.tailscale.com/a/g9c528a9ba2c7e971
+
+Success.
+terhubung sebagai: libraryku-kali.tail342a2f.ts.net

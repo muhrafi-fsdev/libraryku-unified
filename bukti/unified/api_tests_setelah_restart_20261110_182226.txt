@@ -1,0 +1,99 @@
+
+===== Kompatibilitas alamat lama =====
+PASS /api/health lama tetap 200 | HTTP 200
+PASS /api/books lama = isi /api/sql/books (PostgreSQL) | total lama=3 baru=3
+
+===== SQL (PostgreSQL) =====
+PASS sql health 200 dan connected | {"database":"connected","service":"libraryku-api","status":"ok"}
+PASS sql list 200 berformat {data,total} | total=3
+PASS sql CREATE 201 | HTTP 201 {"data":{"author":"Penguji","category":"Umum","id":62,"stock":5,"title":"[UJI-UNIFIED] Buku Uji","year":2024},"message":"Buku berhasil ditambahkan."}
+PASS sql id bertipe integer | 62
+PASS sql bentuk JSON data konsisten (field) | ['author', 'category', 'id', 'stock', 'title', 'year']
+PASS sql READ satu buku 200 | HTTP 200
+PASS sql READ daftar memuat buku uji di urutan teratas | total 3 -> 4
+PASS sql tidak mengubah database nosql (jumlah sama, buku uji tidak muncul) | nosql: 0 -> 0
+PASS sql UPDATE 200 | HTTP 200 {"data":{"author":"Penguji","category":"Umum","id":62,"stock":42,"title":"[UJI-UNIFIED] Buku Uji Diubah","year":2023},"m
+PASS sql UPDATE tersimpan (GET ulang) | {"author": "Penguji", "category": "Umum", "id": 62, "stock": 42, "title": "[UJI-UNIFIED] Buku Uji Diubah", "year": 2023}
+PASS sql POST judul kosong -> 400 | HTTP 400
+PASS sql POST stok negatif -> 400 | HTTP 400
+PASS sql POST tahun di luar batas -> 400 | HTTP 400
+PASS sql POST tipe salah (year string, stock boolean) -> 400 | HTTP 400
+PASS sql POST judul terlalu panjang -> 400 | HTTP 400
+PASS sql POST bukan JSON -> 400 | HTTP 400
+PASS sql POST tanpa badan -> 400 | HTTP 400
+PASS sql PUT data tidak valid -> 400 dan data lama utuh | HTTP 400
+PASS sql DELETE 200 | HTTP 200 {"id":62,"message":"Buku berhasil dihapus."}
+PASS sql GET setelah DELETE -> 404 | HTTP 404
+PASS sql DELETE ulang -> 404 | HTTP 404
+PASS sql data kembali seperti semula | total 3
+
+===== NOSQL (MongoDB) =====
+PASS nosql health 200 dan connected | {"database":"connected","engine":"mongodb","service":"libraryku-nosql-api","status":"ok"}
+PASS nosql list 200 berformat {data,total} | total=0
+PASS nosql CREATE 201 | HTTP 201 {"data":{"author":"Penguji","category":"Umum","id":"6af2fe736058c95b4f336218","stock":5,"title":"[UJI-UNIFIED] Buku Uji","year":2024},"message":"Buku 
+PASS nosql id string 24 heksadesimal | '6af2fe736058c95b4f336218'
+PASS nosql bentuk JSON data konsisten (field) | ['author', 'category', 'id', 'stock', 'title', 'year']
+PASS nosql READ satu buku 200 | HTTP 200
+PASS nosql READ daftar memuat buku uji di urutan teratas | total 0 -> 1
+PASS nosql tidak mengubah database sql (jumlah sama, buku uji tidak muncul) | sql: 3 -> 3
+PASS nosql UPDATE 200 | HTTP 200 {"data":{"author":"Penguji","category":"Umum","id":"6af2fe736058c95b4f336218","stock":42,"title":"[UJI-UNIFIED] Buku Uji
+PASS nosql UPDATE tersimpan (GET ulang) | {"author": "Penguji", "category": "Umum", "id": "6af2fe736058c95b4f336218", "stock": 42, "title": "[UJI-UNIFIED] Buku Uji Diubah", "year": 2023}
+PASS nosql POST judul kosong -> 400 | HTTP 400
+PASS nosql POST stok negatif -> 400 | HTTP 400
+PASS nosql POST tahun di luar batas -> 400 | HTTP 400
+PASS nosql POST tipe salah (year string, stock boolean) -> 400 | HTTP 400
+PASS nosql POST judul terlalu panjang -> 400 | HTTP 400
+PASS nosql POST bukan JSON -> 400 | HTTP 400
+PASS nosql POST tanpa badan -> 400 | HTTP 400
+PASS nosql PUT data tidak valid -> 400 dan data lama utuh | HTTP 400
+PASS nosql DELETE 200 | HTTP 200 {"id":"6af2fe736058c95b4f336218","message":"Buku berhasil dihapus."}
+PASS nosql GET setelah DELETE -> 404 | HTTP 404
+PASS nosql DELETE ulang -> 404 | HTTP 404
+PASS nosql data kembali seperti semula | total 0
+
+===== NOSQL: ID, injeksi, galat =====
+PASS nosql GET id tidak valid 'abc' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid 'abc' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid 'abc' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '123' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '123' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '123' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '507f1f77bcf86cd79943901z' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '507f1f77bcf86cd79943901z' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '507f1f77bcf86cd79943901z' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '507f1f77bcf86cd7994390111' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '507f1f77bcf86cd7994390111' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '507f1f77bcf86cd7994390111' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '%24ne' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '%24ne' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '%24ne' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '%7B%22%24ne%22%3A1%7D' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '%7B%22%24ne%22%3A1%7D' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '%7B%22%24ne%22%3A1%7D' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '507f1f77bcf86cd799439011%0A' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '507f1f77bcf86cd799439011%0A' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '507f1f77bcf86cd799439011%0A' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET ObjectId valid tetapi tidak ada -> 404 | HTTP 404
+PASS nosql PUT ObjectId valid tetapi tidak ada -> 404 | HTTP 404
+PASS nosql DELETE ObjectId valid tetapi tidak ada -> 404 | HTTP 404
+PASS nosql injeksi $ne pada title -> 400 | HTTP 400
+PASS nosql injeksi $gt pada stock -> 400 | HTTP 400
+PASS nosql injeksi $where di kolom teks -> 400 | HTTP 400
+PASS nosql injeksi array pada category -> 400 | HTTP 400
+PASS nosql kolom asing diabaikan (_id dari klien tidak dipakai, field asing tidak tersimpan) | {"author": "Penguji", "category": "Umum", "id": "6af2fe736058c95b4f336219", "stock": 5, "title": "[UJI-UNIFIED] Buku Uji", "year": 2024}
+PASS nosql metode tidak didukung -> 405 JSON | HTTP 405 {"error":"Metode HTTP tidak didukung untuk endpoint ini."}
+PASS nosql rute tidak ada -> 404 JSON | HTTP 404
+PASS nosql badan terlalu besar (40 KB) -> ditolak (413) | HTTP 413
+PASS nosql Content-Type bukan JSON -> 400 | HTTP 400
+
+===== Kebocoran informasi =====
+PASS badan respons tidak memuat kredensial, URI, nama pengguna DB, atau jejak tumpukan | []
+PASS header Server tidak membuka versi Nginx | nginx
+PASS header X-Content-Type-Options ada | nosniff
+PASS header X-Frame-Options ada | DENY
+PASS header Content-Security-Policy ada | default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; c
+PASS header Referrer-Policy ada | no-referrer
+PASS tidak ada header CORS terbuka (Access-Control-Allow-Origin) | None
+PASS permintaan lintas-origin tidak mendapat izin CORS | None
+
+RINGKASAN: 87 PASS, 0 FAIL dari 87 pemeriksaan

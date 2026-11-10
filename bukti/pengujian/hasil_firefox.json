@@ -1,0 +1,294 @@
+[
+ [
+  "firefox",
+  "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0"
+ ],
+ [
+  "beranda",
+  {
+   "h1": "Koleksi buku yang rapi, mudah dicari.",
+   "status": "Database terhubung",
+   "judul": "2",
+   "stok": "1.100",
+   "kat": "2",
+   "nav": [
+    "Beranda",
+    "Katalog",
+    "Tentang"
+   ],
+   "recent": 2
+  }
+ ],
+ [
+  "resource_ok",
+  [
+   [
+    "app.js?v=3",
+    200
+   ],
+   [
+    "style.css?v=3",
+    200
+   ],
+   [
+    "books",
+    200
+   ],
+   [
+    "health",
+    200
+   ]
+  ]
+ ],
+ [
+  "navigasi",
+  [
+   {
+    "menu": "Katalog",
+    "hash": "#katalog",
+    "aktif": "Katalog",
+    "targetTerlihat": true
+   },
+   {
+    "menu": "Tentang",
+    "hash": "#tentang",
+    "aktif": "Tentang",
+    "targetTerlihat": true
+   },
+   {
+    "menu": "Beranda",
+    "hash": "#beranda",
+    "aktif": "Beranda",
+    "targetTerlihat": true
+   }
+  ]
+ ],
+ [
+  "pencarian",
+  {
+   "rekayasa": "1 dari 2 buku",
+   "tanpaHasil": "0 dari 2 buku",
+   "pesanKosong": "Tidak ada buku yang cocokTidak ada buku dengan kata “zzz”.Hapus filter",
+   "filterTeknologi": "1 dari 2 buku",
+   "reset": "2 buku"
+  }
+ ],
+ [
+  "validasi",
+  {
+   "galatKosong": 5,
+   "fokusSetelahGalat": "title",
+   "galatNilai": {
+    "year": "Tahun harus angka bulat antara 1900 dan 2027.",
+    "stock": "Stok harus angka bulat antara 0 dan 1.000.000."
+   },
+   "apiTotal": 2
+  }
+ ],
+ [
+  "crud",
+  {
+   "id": 9,
+   "sesudahUpdate": {
+    "filterDibersihkan": false,
+    "barisAda": true,
+    "teks": "[UJI-FF] Buku Firefox DiubahPenguji FFUmum202430 eks.EditHapus",
+    "stat": [
+     "3",
+     "1.130",
+     "3"
+    ]
+   },
+   "getId": {
+    "data": {
+     "author": "Penguji FF",
+     "category": "Umum",
+     "id": 9,
+     "stock": 30,
+     "title": "[UJI-FF] Buku Firefox Diubah",
+     "year": 2024
+    }
+   }
+  }
+ ],
+ [
+  "galat_js_sesi_halaman_1",
+  []
+ ],
+ [
+  "refresh",
+  {
+   "rows": [
+    "9:[UJI-FF] Buku Firefox DiubahPenguji FFUmum202430 eks.EditHap",
+    "2:REKAYASA AGAMAGUS RUSDIPendidikan20221.000 eks.EditHapus",
+    "1:DASAR TELEKOMUNIKASIAMBATUKAMTeknologi2021100 eks.EditHapus"
+   ],
+   "stat": [
+    "3",
+    "1.130"
+   ]
+  }
+ ],
+ [
+  "urutan_tab",
+  [
+   {
+    "tag": "A",
+    "id": "",
+    "txt": "Lewati ke katalog",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "A",
+    "id": "",
+    "txt": "LibraryKu, ke awal halaman",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "A",
+    "id": "",
+    "txt": "Beranda",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "A",
+    "id": "",
+    "txt": "Katalog",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "A",
+    "id": "",
+    "txt": "Tentang",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "A",
+    "id": "",
+    "txt": "Jelajahi katalog",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "BUTTON",
+    "id": "heroAdd",
+    "txt": "Tambah buku",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "A",
+    "id": "",
+    "txt": "Lihat semua di katalog",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "INPUT",
+    "id": "searchInput",
+    "txt": "",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "SELECT",
+    "id": "categoryFilter",
+    "txt": "Semua kategoriPendidikanTekn",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "BUTTON",
+    "id": "newBtn",
+    "txt": "Tambah buku",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "BUTTON",
+    "id": "refreshBtn",
+    "txt": "Muat ulang",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "BUTTON",
+    "id": "",
+    "txt": "Edit buku [UJI-FF] Buku Fire",
+    "outline": "solid 3px",
+    "shadow": false
+   },
+   {
+    "tag": "BUTTON",
+    "id": "",
+    "txt": "Hapus buku [UJI-FF] Buku Fir",
+    "outline": "solid 3px",
+    "shadow": false
+   }
+  ]
+ ],
+ [
+  "fokus_hapus",
+  {
+   "fokusDi": "Hapus"
+  }
+ ],
+ [
+  "enter_buka_dialog",
+  {
+   "open": true,
+   "fokusDalamDialog": true,
+   "fokus": "confirmCancel",
+   "judul": "[UJI-FF] Buku Firefox Diubah"
+  }
+ ],
+ [
+  "escape_tutup_dialog",
+  {
+   "open": false,
+   "fokusKembaliKe": "Hapus",
+   "bukuMasihAda": true
+  }
+ ],
+ [
+  "hapus_keyboard",
+  {
+   "apiTotal": 2,
+   "ids": [
+    2,
+    1
+   ],
+   "ujiMasih": false,
+   "ui": [
+    "2",
+    "1.100"
+   ]
+  }
+ ],
+ [
+  "mobile",
+  {
+   "w": 450,
+   "scrollW": 438,
+   "overflow": false,
+   "status": "Database terhubung",
+   "kecil": 0
+  }
+ ],
+ [
+  "zoom200",
+  {
+   "cssW": 683,
+   "dpr": 2,
+   "overflow": false,
+   "scrollW": 677,
+   "navTerlihat": true,
+   "h1": 432
+  }
+ ]
+]

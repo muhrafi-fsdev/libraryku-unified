@@ -1,0 +1,37 @@
+Uji fungsional V3 di Firefox 140 ESR (Marionette) terhadap Flask+PostgreSQL asli, buku uji [UJI-V3]
+PASS nav katalog | view=katalog title="Katalog | LibraryKu" fokus=H1
+PASS nav dashboard | view=dashboard title="Dashboard | LibraryKu" fokus=H1
+PASS nav tentang | view=tentang title="Tentang | LibraryKu" fokus=H1
+PASS nav beranda | view=beranda title="LibraryKu | Perpustakaan digital kampus" fokus=H1
+PASS hash tak dikenal tidak mengubah rute
+PASS beranda: statistik = API | 3/11.100/2 vs 3/11100/2
+PASS beranda: kartu terbaru = API (id terbesar) | TEKNIK SIPIL | REKAYASA AGAMA | DASAR TELEKOMUNIKASI
+PASS beranda: rak berisi buku nyata | 3 punggung
+PASS beranda: tanpa form/tabel CRUD
+PASS katalog: tanpa tombol Tambah/Edit/Hapus & tanpa form
+PASS katalog: kartu = jumlah API | 3 buku
+PASS katalog: cari penulis | 1 dari 3 buku
+PASS katalog: empty state | 0 dari 3 buku
+PASS katalog: Hapus filter memulihkan daftar
+PASS katalog: filter kategori | 2 dari 3 buku
+PASS dashboard: dialog tertutup sebelum dibuka
+PASS dashboard: dialog tambah terbuka, fokus ke judul
+PASS validasi: 5 galat | fokus=title
+PASS tutup dialog -> fokus kembali ke tombol Tambah
+PASS create: POST 201 | ["POST","/api/books",201]
+PASS create: dialog tertutup, toast, baris baru | Buku “[UJI-V3] Buku Awal” ditambahkan.
+PASS dashboard: filter aktif | 1 dari 4 buku
+PASS edit: dialog terisi
+PASS update: PUT 200 | ["PUT","/api/books/50",200]
+PASS update: GET id sesuai | {"author":"Penguji V3","category":"Umum","id":50,"stock":42,"title":"[UJI-V3] Buku Sesudah","year":2023}
+PASS update: baris terlihat, filter dibersihkan otomatis | [UJI-V3] Buku SesudahPenguji V3Umum202342 eks.EditHapus
+PASS dashboard: statistik = API | 4,11.142,3
+PASS katalog menampilkan buku baru (data sama)
+PASS beranda: terbaru memuat buku uji
+PASS tutup edit: fokus kembali ke tombol Edit
+PASS hapus: dialog menyebut judul
+PASS batal hapus: data tetap
+PASS delete: DELETE 200 | ["DELETE","/api/books/50",200]
+PASS delete: API kembali ke data awal, GET id 404 | total 3 ids 10,2,1
+PASS toast hapus | Buku “[UJI-V3] Buku Sesudah” dihapus.
+PASS galat JavaScript selama pengujian

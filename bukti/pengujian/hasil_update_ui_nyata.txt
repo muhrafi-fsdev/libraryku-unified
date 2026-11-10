@@ -1,0 +1,17 @@
+Uji Update UI terhadap Flask+PostgreSQL asli (localhost:8081), 2026-11-05, Chromium di Kali.
+Aksi memakai klik nyata pada tombol/form (bukan memanggil fungsi aplikasi). Semua fetch direkam.
+Buku sementara: id 8, "[UJI] Update UI Awal" -> "[UJI] Update UI Sesudah".
+
+1  Create lewat UI: POST /api/books -> HTTP 201, id 8 (2020, stok 5, kategori Umum). Tabel 2 -> 3 baris; statistik 3 judul / 1.105 stok / 3 kategori.
+2  Filter aktif: pencarian "update ui awal" + kategori "Umum" -> "1 dari 3 buku".
+3  Edit lewat form: judul -> "[UJI] Update UI Sesudah", tahun 2020 -> 2023, stok 5 -> 42.
+4  Simpan: PUT /api/books/8 -> HTTP 200 {"message":"Buku berhasil diubah.", stock 42, year 2023, title baru}.
+5  GET /api/books/8 -> title "[UJI] Update UI Sesudah", year 2023, stock 42 (sama dengan PUT).
+6  Setelah simpan, aplikasi MEMBERSIHKAN filter otomatis (judul baru tidak cocok pencarian lama: revealChanged -> clearFilters -> renderBooks); baris id 8 terlihat; toast "Perubahan buku ... disimpan."; statistik 3 / 1.142 / 3.
+7  Filter dibersihkan manual: baris tetap muncul, statistik sama.
+8  Statistik vs API: UI 3 judul, 1.142 stok, 3 kategori; API total 3, stok 1142, kategori 3 -> sama.
+9  Refresh halaman: baris id 8 tetap ada dengan data baru; statistik sama; "Database terhubung". Screenshot: 30-update-ui-sesudah-refresh.jpg
+10 Hapus lewat dialog konfirmasi UI: DELETE /api/books/8 -> HTTP 200; GET /api/books/8 -> 404; API kembali total 2 (id 2,1); UI 2 judul / 1.100 / 2.
+
+KESIMPULAN: Update UI PASS. Tidak ada bug aplikasi. Kegagalan pemeriksaan sebelumnya (hasil_regresi_ui.txt, butir update) adalah kesalahan skrip uji lama (memeriksa baris ke-0 saat filter/urutan berbeda), bukan cacat revealChanged/clearFilters/renderBooks/loadBooks; alur yang sama dengan klik nyata lulus.
+Dua buku asli tidak disentuh.

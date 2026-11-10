@@ -1,0 +1,34 @@
+== SQL injection (PostgreSQL) ==
+PASS payload 'akhiri query + DROP' tersimpan sebagai teks biasa (query berparameter) | HTTP 201
+PASS payload 'OR selalu benar' tersimpan sebagai teks biasa (query berparameter) | HTTP 201
+PASS payload 'UNION' tersimpan sebagai teks biasa (query berparameter) | HTTP 201
+PASS tabel books masih utuh dan jumlah bertambah tepat 3
+PASS SQL id '1%20OR%201=1' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+PASS SQL id '1;DROP%20TABLE%20books' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+PASS SQL id '-1' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+PASS SQL id '1.5' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+PASS SQL id 'abc' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+PASS SQL id '99999999999999999999' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+== NoSQL injection (MongoDB) ==
+PASS parameter query berisi operator diabaikan (tidak ada filter dari pengguna, tidak galat) | HTTP 200
+PASS nilai 'JS di string' hanya tersimpan sebagai string biasa | HTTP 201
+PASS nilai 'operator sebagai teks' hanya tersimpan sebagai string biasa | HTTP 201
+PASS nilai '$where sebagai teks' hanya tersimpan sebagai string biasa | HTTP 201
+== XSS tersimpan: API mengirim teks, bukan HTML ==
+PASS sql: Content-Type application/json + nosniff | application/json
+PASS nosql: Content-Type application/json + nosniff | application/json
+== CSRF dan CORS ==
+PASS sql: POST lintas-situs ala form (text/plain) ditolak | HTTP 400
+PASS sql: preflight CORS tidak memberi izin | None
+PASS nosql: POST lintas-situs ala form (text/plain) ditolak | HTTP 400
+PASS nosql: preflight CORS tidak memberi izin | None
+== Metode dan header ==
+PASS metode TRACE tidak diterima | HTTP 405
+PASS metode CONNECT tidak diterima | HTTP 405
+== Port di host (LibraryKu) ==
+PASS tidak ada listener 27017 (MongoDB) di host
+PASS tidak ada listener 5000 (Flask) di host
+PASS 8081 hanya dari Nginx LibraryKu (0.0.0.0:8081)
+[bersih-bersih] 8 buku uji dihapus
+
+RINGKASAN: 25 PASS, 0 FAIL dari 25

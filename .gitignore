@@ -1,0 +1,22 @@
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.vscode/
+.DS_Store
+
+.env.*
+!.env.example
+*.pem
+*.key
+
+nginx/auth/
+
+# Cadangan, berkas lama, dan rahasia lokal
+*.bak
+*.bak-*
+frontend.bak-*/
+.uji_persist_ids.json
+# PDF laporan lama; tambahkan PDF baru hasil ekspor Word secara manual setelah laporan final
+laporan/laporan.pdf
+

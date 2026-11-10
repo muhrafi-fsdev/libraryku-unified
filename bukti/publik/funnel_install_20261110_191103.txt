@@ -1,0 +1,42 @@
+=== INSTALL Tailscale | 2026-11-10 19:11:03 WIB ===
+Aksi: mengunduh skrip instalasi resmi dari tailscale.com ke berkas sementara, lalu menjalankannya (menambah repositori apt Tailscale dan memasang paket tailscale, service tailscaled aktif saat boot). Belum ada akun yang dihubungkan dan belum ada yang dipublikasikan.
+Lanjut? [y/N] sha256 skrip: 4207f322e10ad26b3054abe7c99dfb54da09843c8d0a50d0a82f8eff4972a0d1
+Installing Tailscale for debian bullseye, using method apt
++ sudo mkdir -p --mode=0755 /usr/share/keyrings
++ sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg
++ curl -fsSL https://pkgs.tailscale.com/stable/debian/bullseye.noarmor.gpg
++ sudo chmod 0644 /usr/share/keyrings/tailscale-archive-keyring.gpg
++ curl -fsSL https://pkgs.tailscale.com/stable/debian/bullseye.tailscale-keyring.list
++ sudo tee /etc/apt/sources.list.d/tailscale.list
+# Tailscale packages for debian bullseye
+deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/debian bullseye main
++ sudo chmod 0644 /etc/apt/sources.list.d/tailscale.list
++ sudo apt-get update
+Hit:1 https://downloads.claude.ai/claude-desktop/apt/stable stable InRelease
+Get:2 https://pkgs.tailscale.com/stable/debian bullseye InRelease
+Hit:3 http://http.kali.org/kali kali-rolling InRelease
+Fetched 6.652 B in 1s (9.914 B/s)
+Reading package lists...
++ [ -n  ]
++ sudo apt-get install -y tailscale tailscale-archive-keyring
+Reading package lists...
+Building dependency tree...
+Reading state information...
+tailscale is already the newest version (1.104.5).
+tailscale-archive-keyring is already the newest version (1.35.181).
+Solving dependencies...
+The following packages were automatically installed and are no longer required:
+  gnome-accessibility-themes gnome-themes-extra libaccountsservice0
+  libappstream5 libavfilter11 libavformat62 libfyaml0 libntfs-3g90
+  libopenjph0.28 libstemmer0d libswscale9 libunibreak7 libxmlb2
+Use 'sudo apt autoremove' to remove them.
+0 upgraded, 0 newly installed, 0 to remove and 53 not upgraded.
++ [ true = true ]
++ sudo systemctl enable --now tailscaled
++ sudo systemctl start tailscaled
++ set +x
+Installation complete! Log in to start using Tailscale by running:
+
+sudo tailscale up
+1.104.5
+tailscaled: aktif=active boot=enabled

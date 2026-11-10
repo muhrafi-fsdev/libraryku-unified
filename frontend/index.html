@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="LibraryKu: katalog perpustakaan digital kampus. Cari buku, cek stok, dan kelola koleksi. Nginx, Flask, dan PostgreSQL di Docker Compose, dibuat untuk Project 1 Cloud Computing." />
+  <meta name="theme-color" content="#ffffff" />
+  <title>LibraryKu | Perpustakaan digital kampus</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b6469'/%3E%3Crect x='7' y='8' width='5' height='16' rx='1' fill='%23fff'/%3E%3Crect x='14' y='6' width='5' height='18' rx='1' fill='%23fff' opacity='.85'/%3E%3Crect x='21' y='10' width='5' height='14' rx='1' fill='%23fff' opacity='.7'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/style.css?v=9" />
+  <script src="/app.js?v=9" defer></script>
+</head>
+<body>
+  <a class="skip-link" id="skipLink" href="#main">Lewati ke konten</a>
+
+  <svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false">
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4.5h6V7"/><path d="M6.5 7l1 12.5h9L17.5 7"/><path d="M10 11v5M14 11v5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3 19.5h18L12 4Z"/><path d="M12 10v4.5M12 17.2v.1"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4.5h10a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3V4.5Z"/><path d="M5 17a3 3 0 0 1 3-3h10"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></symbol>
+  </svg>
+
+  <header class="appbar">
+    <div class="wrap appbar-inner">
+      <a class="brand" href="#beranda" aria-label="LibraryKu, ke Beranda">
+        <svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true" focusable="false">
+          <rect x="3" y="7" width="6" height="17" rx="1.2"/>
+          <rect x="11" y="4" width="6" height="20" rx="1.2" class="mark-accent"/>
+          <rect x="19.2" y="8.5" width="6" height="15.5" rx="1.2" transform="rotate(8 22 24)"/>
+        </svg>
+        <span class="brand-name">LibraryKu</span>
+      </a>
+      <nav class="nav" aria-label="Navigasi utama">
+        <a href="#beranda" data-route="beranda">Beranda</a>
+        <a href="#katalog" data-route="katalog">Katalog</a>
+        <a href="#dashboard" data-route="dashboard">Dashboard</a>
+        <a href="#perbandingan" data-route="perbandingan">Perbandingan</a>
+        <a href="#tentang" data-route="tentang">Tentang</a>
+      </nav>
+      <div class="status" id="serviceStatus" role="status" data-state="checking">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="statusText">Memeriksa koneksi...</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <noscript><p class="noscript">LibraryKu memuat halaman dan data dengan JavaScript. Aktifkan JavaScript di browser, lalu muat ulang halaman.</p></noscript>
+
+    <!-- ================= BERANDA ================= -->
+    <section class="view" id="view-beranda" data-view="beranda" aria-labelledby="heroTitle">
+      <div class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <h1 id="heroTitle" tabindex="-1">Cari buku, cek stok, dan kelola koleksi perpustakaan.</h1>
+            <p class="lede">LibraryKu adalah katalog buku untuk perpustakaan kampus. Data judul, penulis, kategori, tahun terbit, dan stok tersimpan di database (PostgreSQL atau MongoDB) dan dilayani lewat REST API Flask, sehingga katalog dan dashboard memakai data yang sama.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary btn-lg" href="#katalog"><span>Jelajahi Katalog</span><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-arrow"/></svg></a>
+              <a class="btn btn-secondary btn-lg" href="#dashboard">Lihat Dashboard</a>
+            </div>
+            <p class="hero-note">Data dapat disimpan di dua jenis database: PostgreSQL (SQL) dan MongoDB (NoSQL). <a href="#perbandingan">Lihat perbandingannya</a>.</p>
+          </div>
+
+          <figure class="shelf-wrap">
+            <ol class="shelf" id="shelf" aria-hidden="true"></ol>
+            <figcaption id="shelfCaption">Rak ini dibuat dari buku terbaru di database.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="wrap">
+        <section class="strip" aria-labelledby="stripTitle">
+          <h2 id="stripTitle" class="strip-title">Sekilas koleksi</h2>
+          <dl class="ledger-strip">
+            <div><dt>judul buku</dt><dd data-stat="titles">&mdash;</dd></div>
+            <div><dt>eksemplar tersedia</dt><dd data-stat="stock">&mdash;</dd></div>
+            <div><dt>kategori</dt><dd data-stat="categories">&mdash;</dd></div>
+          </dl>
+          <p class="strip-note">Dihitung langsung dari <span id="homeSource">tabel books di PostgreSQL</span> lewat API Flask. Database aktif: <strong data-mode-text="engine">PostgreSQL</strong>. <a href="#dashboard">Ganti database</a>.</p>
+        </section>
+
+        <section class="block" aria-labelledby="recentTitle">
+          <div class="block-head">
+            <h2 id="recentTitle">Koleksi terbaru</h2>
+            <a class="link-arrow" href="#katalog">Lihat semua di katalog<svg class="icon" aria-hidden="true" focusable="false"><use href="#i-arrow"/></svg></a>
+          </div>
+          <ul class="cards cards-recent" id="recentCards" role="list"></ul>
+        </section>
+
+        <section class="block" aria-labelledby="infoTitle">
+          <h2 id="infoTitle">Untuk apa LibraryKu?</h2>
+          <div class="info-grid">
+            <div>
+              <h3>Mencatat koleksi</h3>
+              <p>Setiap buku punya judul, penulis, kategori, tahun terbit, dan jumlah stok. Pustakawan tidak perlu lagi mencatat di buku tulis atau lembar kerja terpisah.</p>
+            </div>
+            <div>
+              <h3>Mencari dengan cepat</h3>
+              <p>Pengunjung membuka Katalog, mengetik judul atau nama penulis, lalu menyaring berdasarkan kategori. Stok setiap buku terlihat langsung.</p>
+            </div>
+            <div>
+              <h3>Mengelola di Dashboard</h3>
+              <p>Menambah, mengubah, dan menghapus buku dipusatkan di halaman Dashboard, terpisah dari halaman yang dilihat pengunjung.</p>
+            </div>
+            <div>
+              <h3>Dua database</h3>
+              <p>Koleksi SQL (PostgreSQL) dan NoSQL (MongoDB) disimpan terpisah. Pilih salah satu di Katalog atau Dashboard, lalu bandingkan cara kerjanya.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ================= KATALOG ================= -->
+    <section class="view" id="view-katalog" data-view="katalog" aria-labelledby="catalogTitle" hidden>
+      <div class="wrap page">
+        <header class="page-head">
+          <h1 id="catalogTitle" tabindex="-1">Koleksi buku perpustakaan</h1>
+          <p class="page-lede">Cari berdasarkan judul atau penulis, lalu saring menurut kategori.</p>
+        </header>
+
+        <div class="mode-row">
+          <fieldset class="mode-switch">
+              <legend>Database yang dipakai</legend>
+              <label class="mode-option"><input type="radio" name="dbmode-cat" value="sql" /><span><strong>SQL</strong><small>PostgreSQL</small></span></label>
+              <label class="mode-option"><input type="radio" name="dbmode-cat" value="nosql" /><span><strong>NoSQL</strong><small>MongoDB</small></span></label>
+            </fieldset>
+          <p class="mode-source">Sumber data: <strong data-mode-text="engine">PostgreSQL</strong> (<span data-mode-text="kind">SQL</span>)</p>
+        </div>
+
+        <div class="toolbar">
+          <div class="search">
+            <label class="sr-only" for="catSearch">Cari judul atau penulis</label>
+            <svg class="icon search-icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+            <input id="catSearch" type="search" placeholder="Cari judul atau penulis" autocomplete="off" />
+          </div>
+          <div class="filter">
+            <label class="sr-only" for="catFilter">Filter kategori</label>
+            <select id="catFilter"><option value="">Semua kategori</option></select>
+          </div>
+        </div>
+        <p class="result-count" id="catCount" aria-live="polite" aria-atomic="true">Memuat koleksi...</p>
+        <ul class="cards cards-catalog" id="catGrid" role="list" aria-busy="true"></ul>
+      </div>
+    </section>
+
+    <!-- ================= DASHBOARD ================= -->
+    <section class="view" id="view-dashboard" data-view="dashboard" aria-labelledby="dashTitle" hidden>
+      <div class="wrap page">
+        <header class="page-head page-head-row">
+          <div>
+            <h1 id="dashTitle" tabindex="-1">Kelola koleksi buku</h1>
+            <p class="page-lede">Tambah, ubah, dan hapus buku. Setiap perubahan langsung tersimpan di <span data-mode-text="engine">PostgreSQL</span>.</p>
+          </div>
+          <dl class="ledger-strip ledger-compact" aria-label="Ringkasan koleksi">
+            <div><dt>judul</dt><dd data-stat="titles">&mdash;</dd></div>
+            <div><dt>eksemplar</dt><dd data-stat="stock">&mdash;</dd></div>
+            <div><dt>kategori</dt><dd data-stat="categories">&mdash;</dd></div>
+          </dl>
+        </header>
+
+        <p class="notice"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Melihat data terbuka untuk semua pengunjung. Menambah, mengubah, dan menghapus data memerlukan login dashboard (nama pengguna dan kata sandi); tanpa login permintaan ditolak.</span></p>
+
+        <div class="mode-row">
+          <fieldset class="mode-switch">
+              <legend>Database yang dipakai</legend>
+              <label class="mode-option"><input type="radio" name="dbmode-dash" value="sql" /><span><strong>SQL</strong><small>PostgreSQL</small></span></label>
+              <label class="mode-option"><input type="radio" name="dbmode-dash" value="nosql" /><span><strong>NoSQL</strong><small>MongoDB</small></span></label>
+            </fieldset>
+        </div>
+        <p class="mode-banner" id="modeBanner"><strong>Database aktif: <span data-mode-text="engine">PostgreSQL</span> (<span data-mode-text="kind">SQL</span>)</strong> &middot; API <code data-mode-text="endpoint">/api/sql/books</code> &middot; <span data-mode-text="idnote">id angka (integer)</span>. Data SQL dan NoSQL terpisah dan tidak saling disalin.</p>
+
+        <div class="panel">
+          <div class="toolbar">
+            <div class="search">
+              <label class="sr-only" for="dashSearch">Cari judul atau penulis</label>
+              <svg class="icon search-icon" aria-hidden="true" focusable="false"><use href="#i-search"/></svg>
+              <input id="dashSearch" type="search" placeholder="Cari judul atau penulis" autocomplete="off" />
+            </div>
+            <div class="filter">
+              <label class="sr-only" for="dashFilter">Filter kategori</label>
+              <select id="dashFilter"><option value="">Semua kategori</option></select>
+            </div>
+            <button class="btn btn-primary" id="newBtn" type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-plus"/></svg><span>Tambah buku</span></button>
+            <button class="btn btn-secondary" id="refreshBtn" type="button" title="Muat ulang daftar"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg><span id="refreshLabel">Muat ulang</span></button>
+          </div>
+
+          <div class="list-meta">
+            <p id="dashCount" aria-live="polite" aria-atomic="true">Memuat daftar buku...</p>
+            <p class="list-order">Buku terbaru di atas</p>
+          </div>
+
+          <table class="books" role="table" aria-labelledby="dashTitle" aria-busy="true" id="bookList">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader" scope="col">Judul dan penulis</th>
+                <th role="columnheader" scope="col">Kategori</th>
+                <th role="columnheader" scope="col">Tahun</th>
+                <th role="columnheader" scope="col">Stok</th>
+                <th role="columnheader" scope="col"><span class="sr-only">Aksi</span></th>
+              </tr>
+            </thead>
+            <tbody id="bookTable" role="rowgroup"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PERBANDINGAN ================= -->
+    <section class="view" id="view-perbandingan" data-view="perbandingan" aria-labelledby="cmpTitle" hidden>
+      <div class="wrap page">
+        <header class="page-head">
+          <h1 id="cmpTitle" tabindex="-1">Perbandingan SQL dan NoSQL</h1>
+          <p class="page-lede">LibraryKu menyimpan koleksi yang sama di dua jenis database yang terpisah. Halaman ini membandingkan cara kerjanya dengan data dan kode dari aplikasi ini.</p>
+        </header>
+
+        <section class="block-tight" aria-labelledby="cmpLiveTitle">
+          <div class="block-head">
+            <h2 id="cmpLiveTitle">Data nyata dari kedua database</h2>
+            <button class="btn btn-secondary btn-sm" id="cmpRefresh" type="button"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg><span>Muat ulang</span></button>
+          </div>
+          <div class="cmp-live">
+            <article class="cmp-card" data-db="sql" aria-labelledby="cmpSqlName">
+              <h3 id="cmpSqlName">SQL: PostgreSQL</h3>
+              <dl class="kv">
+                <div><dt>Status</dt><dd id="cmpSqlStatus">Memuat...</dd></div>
+                <div><dt>Jumlah judul</dt><dd id="cmpSqlTotal">&mdash;</dd></div>
+                <div><dt>Endpoint</dt><dd><code>/api/sql/books</code></dd></div>
+              </dl>
+              <p class="cmp-label">Buku terbaru (JSON dari API)</p>
+              <pre class="code" id="cmpSqlSample" tabindex="0" aria-label="Contoh JSON dari PostgreSQL">&mdash;</pre>
+            </article>
+            <article class="cmp-card" data-db="nosql" aria-labelledby="cmpNosqlName">
+              <h3 id="cmpNosqlName">NoSQL: MongoDB</h3>
+              <dl class="kv">
+                <div><dt>Status</dt><dd id="cmpNosqlStatus">Memuat...</dd></div>
+                <div><dt>Jumlah judul</dt><dd id="cmpNosqlTotal">&mdash;</dd></div>
+                <div><dt>Endpoint</dt><dd><code>/api/nosql/books</code></dd></div>
+              </dl>
+              <p class="cmp-label">Buku terbaru (JSON dari API)</p>
+              <pre class="code" id="cmpNosqlSample" tabindex="0" aria-label="Contoh JSON dari MongoDB">&mdash;</pre>
+            </article>
+          </div>
+          <p class="note-small">Kedua database terpisah: tidak ada sinkronisasi otomatis, jadi jumlah dan isinya boleh berbeda.</p>
+        </section>
+
+        <section class="block-tight" aria-labelledby="cmpTableTitle">
+          <h2 id="cmpTableTitle">Cara kerja di aplikasi ini</h2>
+          <div class="table-scroll">
+            <table class="cmp-table">
+              <caption class="sr-only">Perbandingan implementasi SQL dan NoSQL pada LibraryKu</caption>
+              <thead><tr><th scope="col">Aspek</th><th scope="col">SQL: PostgreSQL 16</th><th scope="col">NoSQL: MongoDB 7.0</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Model data</th><td>Tabel dengan baris dan kolom (relasional)</td><td>Dokumen BSON/JSON di dalam koleksi</td></tr>
+                <tr><th scope="row">Skema</th><td>Tetap: tipe kolom dan CHECK ada di <code>init.sql</code></td><td>Fleksibel; aplikasi memvalidasi bentuk dokumen sebelum menyimpan</td></tr>
+                <tr><th scope="row">Identitas</th><td><code>id</code> integer otomatis</td><td><code>_id</code> ObjectId, dikirim sebagai string 24 karakter</td></tr>
+                <tr><th scope="row">Baca satu buku</th><td><code>SELECT ... FROM books WHERE id = %s</code></td><td><code>find_one({"_id": ObjectId(id)})</code></td></tr>
+                <tr><th scope="row">Tambah</th><td><code>INSERT INTO books (...) VALUES (...)</code></td><td><code>insert_one({...})</code></td></tr>
+                <tr><th scope="row">Ubah</th><td><code>UPDATE books SET ... WHERE id = %s</code></td><td><code>find_one_and_update({"_id": ...}, {"$set": {...}})</code></td></tr>
+                <tr><th scope="row">Hapus</th><td><code>DELETE FROM books WHERE id = %s</code></td><td><code>delete_one({"_id": ObjectId(id)})</code></td></tr>
+                <tr><th scope="row">Perlindungan input</th><td>Query berparameter (<code>%s</code>)</td><td>ID divalidasi 24 heksadesimal; nilai pengguna tidak pernah dipakai sebagai operator query</td></tr>
+                <tr><th scope="row">Penyimpanan</th><td>Volume <code>postgres_data</code></td><td>Volume <code>mongo_data</code></td></tr>
+                <tr><th scope="row">Cocok untuk</th><td>Data terstruktur, relasi antartabel, transaksi</td><td>Data yang bentuknya bervariasi atau bersarang</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="block-tight" aria-labelledby="cmpShapeTitle">
+          <h2 id="cmpShapeTitle">Contoh bentuk data</h2>
+          <p class="note-small">Ilustrasi bentuk, bukan data yang tersimpan. Untuk data yang tersimpan lihat bagian "Data nyata" di atas.</p>
+          <div class="cmp-live">
+            <div><p class="cmp-label">SQL: satu baris tabel <code>books</code></p>
+<pre class="code" tabindex="0" aria-label="Contoh baris SQL">id | title             | author   | category  | year | stock
+ 7 | Dasar Basis Data  | Sari Dewi| Teknologi | 2024 |   3</pre></div>
+            <div><p class="cmp-label">NoSQL: satu dokumen di koleksi <code>books</code></p>
+<pre class="code" tabindex="0" aria-label="Contoh dokumen MongoDB">{
+  "_id": ObjectId("507f1f77bcf86cd799439011"),
+  "title": "Dasar Basis Data",
+  "author": "Sari Dewi",
+  "category": "Teknologi",
+  "year": 2024,
+  "stock": 3
+}</pre></div>
+          </div>
+        </section>
+
+        <section class="block-tight" aria-labelledby="cmpPerfTitle">
+          <h2 id="cmpPerfTitle">Ukur waktu respons dari browser ini</h2>
+          <p class="note-small">Mengirim satu permintaan pemanasan lalu 10 permintaan GET daftar buku ke tiap database dan mencatat waktu bolak-balik di browser Anda. Hasilnya hanya milik sesi ini dan bukan benchmark: jumlah data, VM, dan beban komputer memengaruhinya.</p>
+          <p><button class="btn btn-secondary" id="cmpMeasure" type="button">Ukur sekarang</button></p>
+          <div class="table-scroll">
+            <table class="cmp-table" aria-live="polite">
+              <caption class="sr-only">Hasil pengukuran waktu respons</caption>
+              <thead><tr><th scope="col">Database</th><th scope="col">Median</th><th scope="col">Tercepat</th><th scope="col">Terlama</th><th scope="col">Sampel</th></tr></thead>
+              <tbody id="cmpPerfBody"><tr><td colspan="5">Belum diukur.</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- ================= TENTANG ================= -->
+    <section class="view" id="view-tentang" data-view="tentang" aria-labelledby="aboutTitle" hidden>
+      <div class="wrap page">
+        <header class="page-head">
+          <h1 id="aboutTitle" tabindex="-1">Tentang LibraryKu</h1>
+          <p class="page-lede">Aplikasi pengelolaan perpustakaan untuk Project 1 mata kuliah Cloud Computing.</p>
+        </header>
+
+        <div class="about-grid">
+          <div class="about-copy">
+            <h2>Tujuan</h2>
+            <p>LibraryKu dibuat untuk mempraktikkan aplikasi web berbasis container: operasi CRUD (tambah, baca, ubah, hapus) yang dijalankan secara lokal memakai Docker Compose. Studi kasusnya perpustakaan dan platformnya Docker. Mode SQL memakai PostgreSQL, mode NoSQL memakai MongoDB. Penugasan resmi memakai satu kombinasi kasus per kelompok; mode NoSQL adalah pengembangan tambahan yang dapat didemonstrasikan terpisah.</p>
+            <h2>Fitur utama</h2>
+            <ul class="plain-list">
+              <li><strong>Beranda</strong>: ringkasan koleksi dan buku terbaru dari database.</li>
+              <li><strong>Katalog</strong>: cari berdasarkan judul atau penulis, saring berdasarkan kategori, lihat tahun terbit dan stok.</li>
+              <li><strong>Dashboard</strong>: tambah, ubah, dan hapus buku, dengan validasi input dan konfirmasi hapus.</li>
+              <li><strong>Pilihan database</strong>: SQL (PostgreSQL) atau NoSQL (MongoDB), dengan indikator database aktif.</li>
+              <li><strong>Perbandingan</strong>: data nyata dari kedua database dan perbedaan cara kerjanya.</li>
+            </ul>
+            <h2>Teknologi</h2>
+            <dl class="tech">
+              <div><dt>Frontend</dt><dd>HTML, CSS, JavaScript biasa (tanpa framework)</dd></div>
+              <div><dt>Web server</dt><dd>Nginx</dd></div>
+              <div><dt>Backend</dt><dd>Dua layanan Flask (Python): SQL dan NoSQL, REST API berformat JSON</dd></div>
+              <div><dt>Database</dt><dd>PostgreSQL 16 (SQL) dan MongoDB 7.0 (NoSQL)</dd></div>
+              <div><dt>Orkestrasi</dt><dd>Docker Compose</dd></div>
+            </dl>
+          </div>
+
+          <div>
+            <figure class="flow">
+              <ol class="flow-list" aria-label="Alur permintaan">
+                <li class="flow-item"><strong>Browser</strong><span>Anda membuka halaman ini di <code id="currentAddress">localhost</code>.</span></li>
+                <li class="flow-item"><strong>Nginx <code>frontend</code></strong><span>Menyajikan halaman ini dan menjadi router mode: <code>/api/sql/*</code> (dan alamat lama <code>/api/books</code>) ke Flask SQL, <code>/api/nosql/*</code> ke Flask NoSQL.</span></li>
+                <li class="flow-item"><strong>Flask SQL <code>backend</code> atau Flask NoSQL <code>backend-nosql</code></strong><span>Port 5000, hanya di jaringan Docker. Memeriksa data lalu menjalankan perintah ke database masing-masing.</span></li>
+                <li class="flow-item"><strong>PostgreSQL <code>database</code> atau MongoDB <code>mongodb</code></strong><span>Tidak dibuka ke host. Data di volume <code>postgres_data</code> dan <code>mongo_data</code>; MongoDB berada di jaringan internal <code>nosql_network</code>.</span></li>
+              </ol>
+              <figcaption>Hanya Nginx yang dibuka ke komputer host. Flask dijangkau lewat jaringan <code>app_network</code>, dan MongoDB hanya lewat <code>nosql_network</code> yang bersifat internal.</figcaption>
+            </figure>
+            <div class="compose-role">
+              <h2>Peran Docker Compose</h2>
+              <p>Satu berkas <code>compose.yaml</code> mendefinisikan lima service (frontend, backend SQL, PostgreSQL, backend NoSQL, MongoDB), dua jaringan, dan dua volume. Compose menyalakan database lebih dulu, menunggu health check, lalu backend. Data buku tetap ada saat container dihentikan dan dinyalakan lagi, selama volume tidak dihapus.</p>
+            </div>
+          </div>
+        </div>
+
+        <section class="api" aria-labelledby="apiTitle">
+          <h2 id="apiTitle">Coba API langsung</h2>
+          <p>Alamat GET bisa dibuka di browser. POST, PUT, dan DELETE diuji lewat Postman atau curl.</p>
+          <ul class="endpoint-list">
+            <li><code class="method">GET</code><a href="/api/sql/health" target="_blank" rel="noopener">/api/sql/health</a><span>Status API dan koneksi PostgreSQL</span></li>
+            <li><code class="method">GET</code><a href="/api/nosql/health" target="_blank" rel="noopener">/api/nosql/health</a><span>Status API dan koneksi MongoDB</span></li>
+            <li><code class="method">GET</code><a href="/api/sql/books" target="_blank" rel="noopener">/api/sql/books</a><span>Daftar buku di PostgreSQL (JSON)</span></li>
+            <li><code class="method">GET</code><a href="/api/nosql/books" target="_blank" rel="noopener">/api/nosql/books</a><span>Daftar buku di MongoDB (JSON)</span></li>
+            <li><code class="method">GET</code><code>/api/{sql|nosql}/books/{id}</code><span>Satu buku berdasarkan id</span></li>
+            <li><code class="method">POST</code><code>/api/{sql|nosql}/books</code><span>Tambah buku (badan JSON)</span></li>
+            <li><code class="method">PUT</code><code>/api/{sql|nosql}/books/{id}</code><span>Ubah data buku</span></li>
+            <li><code class="method">DELETE</code><code>/api/{sql|nosql}/books/{id}</code><span>Hapus buku</span></li>
+            <li><code class="method">GET</code><code>/api/books</code><span>Alamat lama, tetap ke PostgreSQL (kompatibilitas)</span></li>
+          </ul>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <span class="footer-name">LibraryKu</span>
+        <span>Project 1 Cloud Computing &middot; Nginx &rarr; Flask API &rarr; PostgreSQL / MongoDB (Docker Compose)</span>
+      </div>
+      <nav class="footer-nav" aria-label="Navigasi footer">
+        <a href="#beranda">Beranda</a>
+        <a href="#katalog">Katalog</a>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#perbandingan">Perbandingan</a>
+        <a href="#tentang">Tentang</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Formulir tambah/edit (dibuka dari Dashboard) -->
+  <dialog id="formDialog" class="dialog dialog-form" aria-labelledby="formTitle" aria-describedby="formHint">
+    <div class="dialog-body">
+      <div class="editor-head">
+        <div>
+          <h2 id="formTitle">Tambah buku</h2>
+          <p id="formHint">Semua kolom wajib diisi.</p>
+        </div>
+        <button class="icon-btn" id="closeFormBtn" type="button" aria-label="Tutup formulir">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-close"/></svg>
+        </button>
+      </div>
+
+      <form id="bookForm" novalidate>
+        <div class="field">
+          <label for="title">Judul buku</label>
+          <input id="title" name="title" type="text" maxlength="150" autocomplete="off" required placeholder="Contoh: Dasar Jaringan Komputer" aria-describedby="title-error" />
+          <p class="field-error" id="title-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="author">Nama penulis</label>
+          <input id="author" name="author" type="text" maxlength="100" autocomplete="off" required placeholder="Nama penulis buku" aria-describedby="author-error" />
+          <p class="field-error" id="author-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="category">Kategori</label>
+          <select id="category" name="category" required aria-describedby="category-error">
+            <option value="">Pilih kategori</option>
+            <option>Teknologi</option>
+            <option>Pendidikan</option>
+            <option>Fiksi</option>
+            <option>Sejarah</option>
+            <option>Umum</option>
+          </select>
+          <p class="field-error" id="category-error" hidden></p>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="year">Tahun terbit</label>
+            <input id="year" name="year" type="number" inputmode="numeric" min="1900" max="2100" step="1" required placeholder="2024" aria-describedby="year-hint year-error" />
+            <p class="field-hint" id="year-hint">1900 sampai 2100</p>
+            <p class="field-error" id="year-error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="stock">Stok (eksemplar)</label>
+            <input id="stock" name="stock" type="number" inputmode="numeric" min="0" max="1000000" step="1" required placeholder="0" aria-describedby="stock-hint stock-error" />
+            <p class="field-hint" id="stock-hint">0 sampai 1.000.000</p>
+            <p class="field-error" id="stock-error" hidden></p>
+          </div>
+        </div>
+        <p class="form-error" id="formError" role="alert" hidden></p>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="cancelBtn" type="button">Batal</button>
+          <button class="btn btn-primary" type="submit" id="submitBtn">Simpan buku</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <dialog id="confirmDialog" class="dialog" aria-labelledby="confirmTitle" aria-describedby="confirmText">
+    <div class="dialog-body">
+      <h2 id="confirmTitle">Hapus buku ini?</h2>
+      <p id="confirmText">Buku &ldquo;<strong id="confirmBook"></strong>&rdquo; akan dihapus permanen dari database <strong id="confirmDb">PostgreSQL</strong>. Tindakan ini tidak bisa dibatalkan.</p>
+      <p class="dialog-error" id="confirmError" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" id="confirmCancel" type="button" autofocus>Batal</button>
+        <button class="btn btn-danger" id="confirmDelete" type="button">Hapus buku</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

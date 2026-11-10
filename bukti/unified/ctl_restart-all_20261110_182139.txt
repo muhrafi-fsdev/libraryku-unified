@@ -1,0 +1,80 @@
+=== RESTART-ALL (down lalu up -d, TANPA -v) | 2026-11-10 18:21:39 WIB ===
+Aksi: menghentikan lalu menyalakan lagi SELURUH container project libraryku-project1 (website mati sekitar satu menit). Volume postgres_data dan mongo_data tetap ada (tanpa -v).
+Lanjut? [y/N] --- data SEBELUM ---
+sql: total 4 ids [60, 10, 2, 1]
+nosql: total 1 ids ['6af2fbe13aadabb041562f8e']
+ Container libraryku-project1-backend-nosql-1  Stopping
+ Container libraryku-project1-frontend-1  Stopping
+ Container libraryku-project1-frontend-1  Stopped
+ Container libraryku-project1-frontend-1  Removing
+ Container libraryku-project1-frontend-1  Removed
+ Container libraryku-project1-backend-1  Stopping
+ Container libraryku-project1-backend-1  Stopped
+ Container libraryku-project1-backend-1  Removing
+ Container libraryku-project1-backend-1  Removed
+ Container libraryku-project1-database-1  Stopping
+ Container libraryku-project1-database-1  Stopped
+ Container libraryku-project1-database-1  Removing
+ Container libraryku-project1-database-1  Removed
+ Container libraryku-project1-backend-nosql-1  Stopped
+ Container libraryku-project1-backend-nosql-1  Removing
+ Container libraryku-project1-backend-nosql-1  Removed
+ Container libraryku-project1-mongodb-1  Stopping
+ Container libraryku-project1-mongodb-1  Stopped
+ Container libraryku-project1-mongodb-1  Removing
+ Container libraryku-project1-mongodb-1  Removed
+ Network libraryku-project1_app_network  Removing
+ Network libraryku-project1_nosql_network  Removing
+ Network libraryku-project1_nosql_network  Removed
+ Network libraryku-project1_app_network  Removed
+--- volume setelah down (harus masih ada) ---
+DRIVER    VOLUME NAME
+local     libraryku-project1_mongo_data
+local     libraryku-project1_postgres_data
+ Network libraryku-project1_app_network  Creating
+ Network libraryku-project1_app_network  Created
+ Network libraryku-project1_nosql_network  Creating
+ Network libraryku-project1_nosql_network  Created
+ Container libraryku-project1-mongodb-1  Creating
+ Container libraryku-project1-database-1  Creating
+ Container libraryku-project1-database-1  Created
+ Container libraryku-project1-backend-1  Creating
+ Container libraryku-project1-mongodb-1  Created
+ Container libraryku-project1-backend-nosql-1  Creating
+ Container libraryku-project1-backend-1  Created
+ Container libraryku-project1-frontend-1  Creating
+ Container libraryku-project1-backend-nosql-1  Created
+ Container libraryku-project1-frontend-1  Created
+ Container libraryku-project1-database-1  Starting
+ Container libraryku-project1-mongodb-1  Starting
+ Container libraryku-project1-database-1  Started
+ Container libraryku-project1-database-1  Waiting
+ Container libraryku-project1-mongodb-1  Started
+ Container libraryku-project1-mongodb-1  Waiting
+ Container libraryku-project1-database-1  Healthy
+ Container libraryku-project1-backend-1  Starting
+ Container libraryku-project1-mongodb-1  Healthy
+ Container libraryku-project1-backend-nosql-1  Starting
+ Container libraryku-project1-backend-1  Started
+ Container libraryku-project1-backend-1  Waiting
+ Container libraryku-project1-backend-nosql-1  Started
+ Container libraryku-project1-backend-1  Healthy
+ Container libraryku-project1-frontend-1  Starting
+ Container libraryku-project1-frontend-1  Started
+[OK] database healthy
+[OK] backend healthy
+[OK] mongodb healthy
+[OK] backend-nosql healthy
+NAME                                 IMAGE                              COMMAND                  SERVICE         CREATED          STATUS                    PORTS
+libraryku-project1-backend-1         libraryku-project1-backend         "gunicorn --bind 0.0…"   backend         16 seconds ago   Up 10 seconds (healthy)   5000/tcp
+libraryku-project1-backend-nosql-1   libraryku-project1-backend-nosql   "gunicorn --bind 0.0…"   backend-nosql   16 seconds ago   Up 10 seconds (healthy)   5000/tcp
+libraryku-project1-database-1        postgres:16-alpine                 "docker-entrypoint.s…"   database        16 seconds ago   Up 15 seconds (healthy)   5432/tcp
+libraryku-project1-frontend-1        nginx:1.28-alpine                  "/docker-entrypoint.…"   frontend        16 seconds ago   Up 4 seconds              0.0.0.0:8081->80/tcp, [::]:8081->80/tcp
+libraryku-project1-mongodb-1         mongo:7.0.45                       "docker-entrypoint.s…"   mongodb         16 seconds ago   Up 15 seconds (healthy)   
+--- data SESUDAH ---
+sql: total 4 ids [60, 10, 2, 1]
+nosql: total 1 ids ['6af2fbe13aadabb041562f8e']
+>>> SQL health  GET /api/sql/health  -> HTTP 200
+{"database":"connected","service":"libraryku-api","status":"ok"}
+>>> NoSQL health  GET /api/nosql/health  -> HTTP 200
+{"database":"connected","engine":"mongodb","service":"libraryku-nosql-api","status":"ok"}

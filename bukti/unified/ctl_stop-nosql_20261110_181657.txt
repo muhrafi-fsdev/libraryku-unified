@@ -1,0 +1,15 @@
+=== STOP-NOSQL | 2026-11-10 18:16:57 WIB ===
+Aksi: menghentikan HANYA container mongodb untuk menguji penanganan galat. PostgreSQL dan website tetap hidup; mode NoSQL akan menampilkan galat sampai Anda menjalankan start-nosql.
+Lanjut? [y/N] sql: total 4 ids [60, 10, 2, 1]
+nosql: total 1 ids ['6af2fbe13aadabb041562f8e']
+ Container libraryku-project1-mongodb-1  Stopping
+ Container libraryku-project1-mongodb-1  Stopped
+>>> NoSQL health (Mongo mati)  GET /api/nosql/health  -> HTTP 503
+{"error":"Database MongoDB tidak dapat diakses. Periksa container mongodb."}
+>>> NoSQL daftar (Mongo mati)  GET /api/nosql/books  -> HTTP 503
+{"error":"Database MongoDB tidak dapat diakses. Periksa container mongodb."}
+>>> SQL health (harus tetap ok)  GET /api/sql/health  -> HTTP 200
+{"database":"connected","service":"libraryku-api","status":"ok"}
+>>> SQL daftar (harus tetap ok)  GET /api/sql/books  -> HTTP 200
+{"data":[{"author":"Penguji Persistensi","category":"Umum","id":60,"stock":9,"title":"[UJI-PERSIST] Buku SQL","year":2024},{"author":"AHMAD TEMOLA","category":"Teknologi","id":10,"stock":10000,"title":"TEKNIK SIPIL","year":2023},{"author":"GUS RUSDI","category":"Pendidikan","id":2,"stock":1000,"titl
+Mongo sekarang MATI. Setelah pengujian UI selesai jalankan: ./unified_ctl.sh start-nosql

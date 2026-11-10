@@ -1,0 +1,8 @@
+=== START-NOSQL | 2026-11-10 18:19:00 WIB ===
+ Container libraryku-project1-mongodb-1  Starting
+ Container libraryku-project1-mongodb-1  Started
+[OK] mongodb healthy
+>>> NoSQL health  GET /api/nosql/health  -> HTTP 200
+{"database":"connected","engine":"mongodb","service":"libraryku-nosql-api","status":"ok"}
+sql: total 4 ids [60, 10, 2, 1]
+nosql: total 1 ids ['6af2fbe13aadabb041562f8e']

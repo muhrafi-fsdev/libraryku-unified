@@ -1,0 +1,27 @@
+=== ENABLE FUNNEL | 2026-11-10 19:15:13 WIB ===
+--- pemeriksaan keamanan sebelum dipublikasikan ---
+POST anonim ke http://127.0.0.1:8081/api/sql/books -> HTTP 401 (harus 401)
+[OK] tulis anonim diblokir
+Aksi: mempublikasikan Nginx LibraryKu (127.0.0.1:8081) ke INTERNET lewat Tailscale Funnel dengan HTTPS. Siapa pun yang tahu alamatnya dapat MELIHAT koleksi; mengubah data tetap butuh login dashboard. Yang dipublikasikan hanya port 8081, bukan database atau port lain.
+Lanjut? [y/N] 
+Funnel is not enabled on your tailnet.
+To enable, visit:
+
+         https://login.tailscale.com/f/funnel?node=n8uzYYuu7a11CNTRL
+
+Success.
+Available on the internet:
+
+https://libraryku-kali.tail342a2f.ts.net/
+|-- proxy http://127.0.0.1:8081
+
+Funnel started and running in the background.
+To disable the proxy, run: tailscale funnel --https=443 off
+
+# Funnel on:
+#     - https://libraryku-kali.tail342a2f.ts.net
+
+https://libraryku-kali.tail342a2f.ts.net (Funnel on)
+|-- / proxy http://127.0.0.1:8081
+
+URL publik: https://libraryku-kali.tail342a2f.ts.net/

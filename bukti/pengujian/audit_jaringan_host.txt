@@ -1,0 +1,11 @@
+Audit read-only akses jaringan (2026-11-05, dari dalam VM Kali; tidak ada pengaturan yang diubah)
+Platform: product_name=VirtualBox, systemd-detect-virt=oracle
+Antarmuka: eth0 10.0.2.15/24 (rentang NAT bawaan VirtualBox); default via 10.0.2.2 (gateway NAT VirtualBox); br-/docker0 172.17-172.20 (jaringan Docker)
+=> Adaptor 1 berada pada mode NAT. Host Windows tidak bisa membuka layanan guest tanpa aturan port forwarding.
+Listener host (ss -ltn): 0.0.0.0:8081 dan [::]:8081 (docker-proxy -> container frontend 172.20.0.4:80)
+=> Port 8081 terikat ke SEMUA antarmuka guest (bukan hanya 127.0.0.1), sehingga NAT port forwarding ke 10.0.2.15:8081 akan menjangkaunya.
+Proyek lain di VM (bukan LibraryKu, tidak diubah): 127.0.0.1:5432, :8000, :8080, :3000 (hanya loopback)
+Backend (5000) dan database (5432) LibraryKu tidak dipublikasikan ke host (lihat docker_20261105_221809.txt).
+Firewall: ufw tidak terpasang; nft dan iptables terpasang; isi ruleset tidak bisa dibaca tanpa sudo -> NOT TESTED
+Aturan port forwarding VirtualBox: tidak dapat dibaca dari dalam guest; catatan sesi Windows 2026-11-03 (EVIDENCE_LOG.md) menyebut nic1=nat tanpa aturan.
+Akses dari host Windows: NOT TESTED (perlu dijalankan dari Windows).

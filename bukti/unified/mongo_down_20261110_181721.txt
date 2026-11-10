@@ -1,0 +1,13 @@
+Uji saat container mongodb MATI (PostgreSQL hidup) | 2026-11-10 18:17:21
+>>> GET /api/nosql/health -> HTTP 503 3.147716s | {"error":"Database MongoDB tidak dapat diakses. Periksa container mongodb."} 
+>>> GET /api/nosql/books -> HTTP 503 3.210752s | {"error":"Database MongoDB tidak dapat diakses. Periksa container mongodb."} 
+>>> GET /api/nosql/books/6af2fbe13aadabb041562f8e -> HTTP 503 3.104957s | {"error":"Database MongoDB tidak dapat diakses. Periksa container mongodb."} 
+>>> POST /api/nosql/books -> HTTP 503 3.169828s | {"error":"Database MongoDB tidak dapat diakses. Periksa container mongodb."} 
+>>> DELETE /api/nosql/books/6af2fbe13aadabb041562f8e -> HTTP 503 3.271895s | {"error":"Database MongoDB tidak dapat diakses. Periksa container mongodb."} 
+>>> GET /api/sql/health -> HTTP 200 0.009940s | {"database":"connected","service":"libraryku-api","status":"ok"} 
+>>> GET /api/sql/books -> HTTP 200 0.010436s | {"data":[{"author":"Penguji Persistensi","category":"Umum","id":60,"stock":9,"title":"[UJI-PERSIST] Buku SQL","year":2024},{"autho
+>>> GET /api/health -> HTTP 200 0.009423s | {"database":"connected","service":"libraryku-api","status":"ok"} 
+--- PostgreSQL tetap bisa CRUD saat Mongo mati ---
+SQL create 201
+SQL update 200
+SQL delete 200

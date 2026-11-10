@@ -1,0 +1,22 @@
+Regresi UI terhadap Flask+PostgreSQL asli (localhost:8081), 2026-11-05, Chromium di Kali.
+Skrip dijalankan di halaman aktual lewat browser (menyalakan alur UI: isi form, submit, klik Edit/Hapus). Buku uji "[UJI-UI] ..." dibuat lalu dihapus.
+PASS awal 2 baris | 2/1.100/2
+PASS validasi form kosong tampil per kolom (5 galat)
+PASS tidak ada baris baru saat invalid
+PASS create: baris bertambah | 3/1.103/3
+PASS XSS (judul berisi <img onerror>) tampil sebagai teks, tidak dieksekusi
+PASS toast sukses
+PASS statistik berubah dari data API
+PASS muncul di "Terbaru ditambahkan"
+PASS pencarian menyaring (1 dari 3) dan hasil kosong (0 dari 3)
+PASS form masuk mode Edit
+PARTIAL update: total stok server menjadi 1.109 (stok 9 tersimpan), tetapi pemeriksaan teks baris oleh skrip uji gagal (kemungkinan artefak filter pencarian aktif); tidak diulang
+PASS filter kategori Teknologi
+PASS dialog konfirmasi hapus terbuka, Batal tidak menghapus
+PASS delete: kembali 2 baris, 2/1.100/2
+PASS tidak ada galat JS; konsol browser kosong
+PASS API: total 2, id [2,1] utuh
+Aksesibilitas (pemeriksaan program): skip link, nama aksesibel semua kontrol, semua input berlabel, lang=id, satu h1, aria-current pada menu, :focus-visible dan prefers-reduced-motion ada di CSS, fokus masuk dialog -> PASS
+Responsif: lebar 360 dan 768 tanpa overflow horizontal; 360: semua tombol/nav >=40px -> PASS
+Impeccable detect http://localhost:8081: 0 anti-pattern; 2 catatan advisory (straggler pada dua paragraf)
+CATATAN: Tab/Enter oleh keyboard nyata, Firefox, dan pembaca layar tidak diuji.

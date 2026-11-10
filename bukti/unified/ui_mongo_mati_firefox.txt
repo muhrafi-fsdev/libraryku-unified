@@ -1,0 +1,9 @@
+Uji UI Firefox saat container mongodb mati
+PASS NoSQL mode, Mongo mati: status header | {"teks": "MongoDB tidak dapat diakses"}
+PASS Dashboard menampilkan state galat (bukan layar kosong/rusak) | {"teks": "Daftar buku belum bisa dimuatPastikan semua layanan berjalan (docker compose ps), lalu coba lagi.Database MongoDB tidak dapat diakses. Periksa container mongodb", "hitung": "Daftar buku belum bisa dimuat"}
+PASS Coba lagi: tetap galat tanpa crash | {"status": "MongoDB tidak dapat diakses"}
+PASS Tambah buku saat Mongo mati: galat tampil di dalam dialog | {"dialogMasihTerbuka": true, "pesan": "Database MongoDB tidak dapat diakses. Periksa container mongodb."}
+PASS Katalog (NoSQL) menampilkan state galat | {"count": "Daftar buku belum bisa dimuat"}
+PASS Perbandingan: NoSQL tidak tersedia, SQL tetap terhubung | {"sql": "Terhubung", "nosql": "Tidak tersedia: Database MongoDB tidak dapat diakses. Periksa container mongodb."}
+PASS Ganti ke SQL: data PostgreSQL normal, status terhubung | {"baris": 4, "status": "PostgreSQL terhubung"}
+PASS Galat JavaScript | {"errs": []}

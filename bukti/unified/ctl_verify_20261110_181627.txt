@@ -1,0 +1,40 @@
+=== VERIFY (baca saja) | 2026-11-10 18:16:27 WIB ===
+--- MongoDB: database, koleksi, jumlah dokumen, daftar judul (pengguna aplikasi) ---
+{
+  db: 'libraryku_nosql',
+  koleksi: [
+    'books'
+  ],
+  jumlah: 1
+}
+{
+  _id: ObjectId('6af2fbe13aadabb041562f8e'),
+  title: '[UJI-PERSIST] Buku NOSQL',
+  author: 'Penguji Persistensi',
+  category: 'Umum',
+  year: 2024,
+  stock: 9
+}
+--- MongoDB: pengguna aplikasi dan hak aksesnya ---
+{
+  user: 'libraryku_app',
+  roles: [
+    {
+      role: 'readWrite',
+      db: 'libraryku_nosql'
+    }
+  ]
+}
+--- MongoDB: akses TANPA kredensial harus ditolak ---
+DITOLAK: Unauthorized
+--- MongoDB: pengguna aplikasi tidak boleh membaca database admin ---
+DITOLAK: Unauthorized
+--- PostgreSQL: tabel books ---
+ id |         title          |       author        |  category  | year | stock 
+----+------------------------+---------------------+------------+------+-------
+ 60 | [UJI-PERSIST] Buku SQL | Penguji Persistensi | Umum       | 2024 |     9
+ 10 | TEKNIK SIPIL           | AHMAD TEMOLA        | Teknologi  | 2023 | 10000
+  2 | REKAYASA AGAMA         | GUS RUSDI           | Pendidikan | 2022 |  1000
+  1 | DASAR TELEKOMUNIKASI   | AMBATUKAM           | Teknologi  | 2021 |   100
+(4 rows)
+

@@ -1,0 +1,52 @@
+# Bukti pengujian API nyata (Nginx -> Flask -> PostgreSQL), 2026-11-05 22:01:39 WIB
+
+## 0. Awal: GET /api/books
+{"data":[{"author":"GUS RUSDI","category":"Pendidikan","id":2,"stock":1000,"title":"REKAYASA AGAMA","year":2022},{"author":"AMBATUKAM","category":"Teknologi","id":1,"stock":100,"title":"DASAR TELEKOMUNIKASI","year":2021}],"total":2}
+
+HTTP 200
+
+## 1. CREATE: POST /api/books (buku uji)
+{"data":{"author":"Claude Uji","category":"Umum","id":3,"stock":3,"title":"[UJI] Buku Pengujian CRUD","year":2024},"message":"Buku berhasil ditambahkan."}
+
+201
+ID_UJI=3
+
+## 2. READ: GET /api/books/3
+{"data":{"author":"Claude Uji","category":"Umum","id":3,"stock":3,"title":"[UJI] Buku Pengujian CRUD","year":2024}}
+
+HTTP 200
+
+## 3. READ list
+{"data":[{"author":"Claude Uji","category":"Umum","id":3,"stock":3,"title":"[UJI] Buku Pengujian CRUD","year":2024},{"author":"GUS RUSDI","category":"Pendidikan","id":2,"stock":1000,"title":"REKAYASA AGAMA","year":2022},{"author":"AMBATUKAM","category":"Teknologi","id":1,"stock":100,"title":"DASAR TELEKOMUNIKASI","year":2021}],"total":3}
+
+HTTP 200
+
+## 4. UPDATE: PUT /api/books/3
+{"data":{"author":"Claude Uji","category":"Teknologi","id":3,"stock":7,"title":"[UJI] Buku Pengujian CRUD (diubah)","year":2024},"message":"Buku berhasil diubah."}
+
+HTTP 200
+
+## 5. Validasi: POST data tidak valid (stok negatif, judul kosong)
+{"details":{"stock":"Stok harus angka bulat antara 0 dan 1.000.000.","title":"Wajib diisi dengan teks."},"error":"Data buku tidak valid."}
+
+HTTP 400
+
+## 6. 404: GET /api/books/999999
+{"error":"Buku tidak ditemukan."}
+
+HTTP 404
+
+## 7. DELETE: /api/books/3
+{"id":3,"message":"Buku berhasil dihapus."}
+
+HTTP 200
+
+## 8. Setelah DELETE: GET /api/books/3 (harus 404)
+{"error":"Buku tidak ditemukan."}
+
+HTTP 404
+
+## 9. Akhir: GET /api/books (harus kembali 2 buku asli)
+{"data":[{"author":"GUS RUSDI","category":"Pendidikan","id":2,"stock":1000,"title":"REKAYASA AGAMA","year":2022},{"author":"AMBATUKAM","category":"Teknologi","id":1,"stock":100,"title":"DASAR TELEKOMUNIKASI","year":2021}],"total":2}
+
+HTTP 200

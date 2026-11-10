@@ -1,0 +1,109 @@
+[
+ [
+  "tab_dashboard",
+  [
+   "skipLink:Lewati ke konten|outline=solid3px",
+   "A:LibraryKu, ke Beranda|outline=solid3px",
+   "A:Beranda|outline=solid3px",
+   "A:Katalog|outline=solid3px",
+   "A:Dashboard|outline=solid3px",
+   "A:Tentang|outline=solid3px",
+   "dashSearch:|outline=solid3px",
+   "dashFilter:Semua kategoriPendidik|outline=solid3px",
+   "newBtn:Tambah buku|outline=solid3px",
+   "refreshBtn:Muat ulang|outline=solid3px",
+   "BUTTON:Edit buku TEKNIK SIPIL|outline=solid3px",
+   "BUTTON:Hapus buku TEKNIK SIPI|outline=solid3px"
+  ]
+ ],
+ [
+  "enter_buka_dialog",
+  {
+   "open": true,
+   "fokus": "title"
+  }
+ ],
+ [
+  "fokus_tetap_di_dialog",
+  false
+ ],
+ [
+  "escape_tutup_dialog",
+  {
+   "open": false,
+   "fokusKembali": "newBtn"
+  }
+ ],
+ [
+  "mobile_beranda",
+  {
+   "w": 450,
+   "sw": 438,
+   "overflow": false,
+   "navTerlihat": true
+  }
+ ],
+ [
+  "mobile_katalog",
+  {
+   "w": 450,
+   "sw": 438,
+   "overflow": false,
+   "navTerlihat": true
+  }
+ ],
+ [
+  "mobile_dashboard",
+  {
+   "w": 450,
+   "sw": 438,
+   "overflow": false,
+   "navTerlihat": true
+  }
+ ],
+ [
+  "mobile_tentang",
+  {
+   "w": 450,
+   "sw": 438,
+   "overflow": false,
+   "navTerlihat": true
+  }
+ ],
+ [
+  "zoom200_beranda",
+  {
+   "cssW": 683,
+   "overflow": false,
+   "sw": 677
+  }
+ ],
+ [
+  "zoom200_katalog",
+  {
+   "cssW": 683,
+   "overflow": false,
+   "sw": 677
+  }
+ ],
+ [
+  "zoom200_dashboard",
+  {
+   "cssW": 683,
+   "overflow": false,
+   "sw": 677
+  }
+ ],
+ [
+  "zoom200_tentang",
+  {
+   "cssW": 683,
+   "overflow": false,
+   "sw": 677
+  }
+ ],
+ [
+  "galat_js_sesi",
+  []
+ ]
+]

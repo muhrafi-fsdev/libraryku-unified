@@ -1,0 +1,7 @@
+Uji XSS tersimpan di UI (Firefox), SQL dan NoSQL, 3 halaman
+{"mode": "sql", "route": "beranda", "xss": 0, "imgs": 0, "scripts": 0, "tampilSebagaiTeks": true}
+{"mode": "sql", "route": "katalog", "xss": 0, "imgs": 0, "scripts": 0, "tampilSebagaiTeks": true}
+{"mode": "sql", "route": "dashboard", "xss": 0, "imgs": 0, "scripts": 0, "tampilSebagaiTeks": true}
+{"mode": "nosql", "route": "beranda", "xss": 0, "imgs": 0, "scripts": 0, "tampilSebagaiTeks": true}
+{"mode": "nosql", "route": "katalog", "xss": 0, "imgs": 0, "scripts": 0, "tampilSebagaiTeks": true}
+{"mode": "nosql", "route": "dashboard", "xss": 0, "imgs": 0, "scripts": 0, "tampilSebagaiTeks": true}

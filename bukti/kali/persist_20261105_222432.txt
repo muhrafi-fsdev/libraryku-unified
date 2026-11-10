@@ -1,0 +1,144 @@
+=== LibraryKu uji 'persist' | 2026-11-05 22:24:32 +0700 | Linux 7.1.5+kali-amd64 | host: Riyo ===
+Alamat yang diuji: http://localhost:8081
+
+>>> GET http://localhost:8081/api/health
+<<< HTTP 200
+{
+  "database": "connected",
+  "service": "libraryku-api",
+  "status": "ok"
+}
+[PASS] Layanan hidup sebelum uji (HTTP 200)
+
+>>> GET http://localhost:8081/api/books
+<<< HTTP 200
+{
+  "data": [
+    {
+      "author": "GUS RUSDI",
+      "category": "Pendidikan",
+      "id": 2,
+      "stock": 1000,
+      "title": "REKAYASA AGAMA",
+      "year": 2022
+    },
+    {
+      "author": "AMBATUKAM",
+      "category": "Teknologi",
+      "id": 1,
+      "stock": 100,
+      "title": "DASAR TELEKOMUNIKASI",
+      "year": 2021
+    }
+  ],
+  "total": 2
+}
+
+>>> POST http://localhost:8081/api/books
+>>> body: {"title":"Buku Uji API persist-222432","author":"Skrip Uji Otomatis","category":"Uji","year":2024,"stock":5}
+<<< HTTP 201
+{
+  "data": {
+    "author": "Skrip Uji Otomatis",
+    "category": "Uji",
+    "id": 7,
+    "stock": 5,
+    "title": "Buku Uji API persist-222432",
+    "year": 2024
+  },
+  "message": "Buku berhasil ditambahkan."
+}
+[PASS] Buku uji dibuat sebelum restart (HTTP 201)
+
+### Menghentikan container: sudo docker compose down  (TANPA -v, volume data tidak disentuh)
+ Container libraryku-project1-frontend-1  Stopping
+ Container libraryku-project1-frontend-1  Stopped
+ Container libraryku-project1-frontend-1  Removing
+ Container libraryku-project1-frontend-1  Removed
+ Container libraryku-project1-backend-1  Stopping
+ Container libraryku-project1-backend-1  Stopped
+ Container libraryku-project1-backend-1  Removing
+ Container libraryku-project1-backend-1  Removed
+ Container libraryku-project1-database-1  Stopping
+ Container libraryku-project1-database-1  Stopped
+ Container libraryku-project1-database-1  Removing
+ Container libraryku-project1-database-1  Removed
+ Network libraryku-project1_app_network  Removing
+ Network libraryku-project1_app_network  Removed
+
+### Volume setelah down (harus masih ada):
+DRIVER    VOLUME NAME
+local     libraryku-project1_postgres_data
+
+### Menyalakan lagi: sudo docker compose up -d
+ Network libraryku-project1_app_network  Creating
+ Network libraryku-project1_app_network  Created
+ Container libraryku-project1-database-1  Creating
+ Container libraryku-project1-database-1  Created
+ Container libraryku-project1-backend-1  Creating
+ Container libraryku-project1-backend-1  Created
+ Container libraryku-project1-frontend-1  Creating
+ Container libraryku-project1-frontend-1  Created
+ Container libraryku-project1-database-1  Starting
+ Container libraryku-project1-database-1  Started
+ Container libraryku-project1-database-1  Waiting
+ Container libraryku-project1-database-1  Healthy
+ Container libraryku-project1-backend-1  Starting
+ Container libraryku-project1-backend-1  Started
+ Container libraryku-project1-backend-1  Waiting
+ Container libraryku-project1-backend-1  Healthy
+ Container libraryku-project1-frontend-1  Starting
+ Container libraryku-project1-frontend-1  Started
+
+### Menunggu API siap (maks. 90 detik)...
+[PASS] API kembali sehat setelah up -d
+
+>>> GET http://localhost:8081/api/books/7
+<<< HTTP 200
+{
+  "data": {
+    "author": "Skrip Uji Otomatis",
+    "category": "Uji",
+    "id": 7,
+    "stock": 5,
+    "title": "Buku Uji API persist-222432",
+    "year": 2024
+  }
+}
+[PASS] Buku uji masih ada setelah down lalu up (HTTP 200)
+[PASS] isi buku uji utuh
+
+>>> DELETE http://localhost:8081/api/books/7
+<<< HTTP 200
+{
+  "id": 7,
+  "message": "Buku berhasil dihapus."
+}
+[PASS] Buku uji dihapus (HTTP 200)
+
+>>> GET http://localhost:8081/api/books
+<<< HTTP 200
+{
+  "data": [
+    {
+      "author": "GUS RUSDI",
+      "category": "Pendidikan",
+      "id": 2,
+      "stock": 1000,
+      "title": "REKAYASA AGAMA",
+      "year": 2022
+    },
+    {
+      "author": "AMBATUKAM",
+      "category": "Teknologi",
+      "id": 1,
+      "stock": 100,
+      "title": "DASAR TELEKOMUNIKASI",
+      "year": 2021
+    }
+  ],
+  "total": 2
+}
+[PASS] jumlah buku kembali seperti semula (2)
+
+=== RINGKASAN: 7 PASS, 0 FAIL ===

@@ -1,0 +1,124 @@
+[
+ [
+  "nosql create",
+  201
+ ],
+ [
+  "nosql update",
+  200
+ ],
+ [
+  "nosql delete",
+  200
+ ],
+ [
+  "keyboard panah kanan pada radio -> NoSQL",
+  {
+   "mode": "nosql",
+   "banner": "Database aktif: MongoDB (NoSQL) · API /a",
+   "fokus": "nosql"
+  }
+ ],
+ [
+  "keyboard panah kiri -> SQL",
+  {
+   "mode": "sql"
+  }
+ ],
+ [
+  "tab dashboard",
+  [
+   "dashSearch|solid",
+   "dashFilter|solid",
+   "newBtn|solid",
+   "refreshBtn|solid",
+   "BUTTON|solid",
+   "BUTTON|solid",
+   "BUTTON|solid",
+   "BUTTON|solid",
+   "BUTTON|solid",
+   "BUTTON|solid",
+   "A|solid"
+  ]
+ ],
+ [
+  "mobile450_beranda",
+  {
+   "w": 500,
+   "sw": 488,
+   "overflow": false,
+   "nav": true
+  }
+ ],
+ [
+  "mobile450_katalog",
+  {
+   "w": 500,
+   "sw": 488,
+   "overflow": false,
+   "nav": true
+  }
+ ],
+ [
+  "mobile450_dashboard",
+  {
+   "w": 500,
+   "sw": 488,
+   "overflow": false,
+   "nav": true
+  }
+ ],
+ [
+  "mobile450_perbandingan",
+  {
+   "w": 500,
+   "sw": 488,
+   "overflow": false,
+   "nav": true
+  }
+ ],
+ [
+  "mobile450_tentang",
+  {
+   "w": 500,
+   "sw": 488,
+   "overflow": false,
+   "nav": true
+  }
+ ],
+ [
+  "zoom200_beranda",
+  {
+   "cssW": 683,
+   "overflow": false
+  }
+ ],
+ [
+  "zoom200_katalog",
+  {
+   "cssW": 683,
+   "overflow": false
+  }
+ ],
+ [
+  "zoom200_dashboard",
+  {
+   "cssW": 683,
+   "overflow": false
+  }
+ ],
+ [
+  "zoom200_perbandingan",
+  {
+   "cssW": 683,
+   "overflow": false
+  }
+ ],
+ [
+  "zoom200_tentang",
+  {
+   "cssW": 683,
+   "overflow": false
+  }
+ ]
+]
