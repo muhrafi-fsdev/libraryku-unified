@@ -16,7 +16,7 @@ def fetch_json(path, data=None):
     request = Request(
         ROOT + path,
         data=json.dumps(data).encode("utf-8") if data is not None else None,
-        headers={"Content-Type": "application/json"} if data is not None else {},
+        headers={"Content-Type": "application/json", "X-Requested-With": "libraryku"} if data is not None else {"X-Requested-With": "libraryku"},
         method="POST" if data is not None else "GET",
     )
     with urlopen(request, timeout=10) as response:

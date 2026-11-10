@@ -1,6 +1,9 @@
-# LibraryKu | Project 1 Cloud Computing
+# LibraryKu
 
-## Identitas kelompok
+Website katalog perpustakaan untuk Project 1 mata kuliah Cloud Computing, Telkom University. Kita bisa melihat, mencari, menambah, mengubah, dan menghapus data buku. Datanya disimpan di PostgreSQL atau MongoDB, tergantung mana yang dipilih di website. Semua bagiannya jalan sebagai container Docker.
+
+Kelompok kami (kelas S1TT-KJ-23-04):
+
 | Nama | NIM |
 |---|---|
 | Muhammad Rafi Priyo Sembodo | 101072300038 |
@@ -8,89 +11,103 @@
 | Muhammad Aprilio Rizal Arifin | 101072300040 |
 | Aji Eka Saputra | 101072300071 |
 
-Mata kuliah Cloud Computing, Telkom University. Kelas: S1TT-KJ-23-04.
-Kasus: **No. 15, Perpustakaan, Microservices (Docker), SQL (PostgreSQL)** menurut tabel pembagian pada PDF penugasan; nomor kelompok resmi dikonfirmasi ke dosen. Mode NoSQL (MongoDB, setara No. 16) adalah **pengembangan tambahan** dalam aplikasi yang sama dan tidak otomatis dihitung sebagai tugas kedua.
-Repositori kode: https://github.com/muhrafi-fsdev/libraryku-unified
-Pengumpulan (ketentuan dosen): file code, Dockerfile, dan laporan dikumpulkan lewat tautan GitHub ini. Laporan: `laporan/laporan.docx`.
+Kasus yang kami kerjakan adalah nomor 15 di tabel PDF penugasan: Perpustakaan, Microservices (Docker), SQL. Versi MongoDB kami tambahkan sebagai pengembangan di aplikasi yang sama, bukan sebagai tugas kedua. Nomor kelompok resminya masih perlu kami pastikan ke dosen.
 
-## Menjalankan
-1. Salin `.env.example` menjadi `.env`, lalu isi semua kata sandi dengan nilai acak (berkas ini tidak pernah di-commit).
-2. Jalankan `docker compose up -d --build` dari folder proyek ini. Website: http://127.0.0.1:8081
-3. Dokumentasi: `docs/unified/` (arsitektur SQL+NoSQL, pengujian, keamanan) dan `docs/publik/` (akses HTTPS publik).
+## Isi aplikasi
 
-**Usulan kasus No. 15: Perpustakaan • Microservices (Docker) • SQL (PostgreSQL)**
+Website punya lima halaman:
 
-> Pastikan kombinasi kasus cocok dengan pembagian kelompok yang ditentukan dosen. Tabel pada PDF penugasan memuat baris No. 15 = Perpustakaan, Microservices (Docker), SQL, tetapi nomor resmi kelompok belum dikonfirmasi. Kode ini disiapkan untuk dijalankan secara **lokal**, bukan untuk penggunaan publik di internet.
+- **Beranda**: ringkasan koleksi dan buku terbaru.
+- **Katalog**: cari buku berdasarkan judul atau penulis, dan saring menurut kategori. Halaman ini hanya untuk melihat.
+- **Dashboard**: tempat menambah, mengubah, dan menghapus buku. Sebelum buku dihapus akan ada konfirmasi.
+- **Perbandingan**: data asli dari PostgreSQL dan MongoDB berdampingan, lengkap dengan perbedaan cara kerjanya.
+- **Tentang**: penjelasan singkat teknologi yang dipakai dan tautan untuk mencoba API.
 
-> **Lingkungan praktik: Kali Linux di VirtualBox, port 8081.** Port 8080 di VM Kali dipakai container proyek lain, sehingga frontend LibraryKu dipetakan ke `8081:80`. `compose.yaml` pada folder ini sudah memakai **8081**. Status bukti ada di `docs/matriks-persyaratan.md`, `docs/log-bukti.md`, dan folder `bukti/pengujian/`; skrip bukti Kali adalah `scripts/uji.sh` (lihat `docs/panduan-bukti.md`).
+Di Katalog dan Dashboard ada tombol **SQL / NoSQL**. SQL memakai PostgreSQL, NoSQL memakai MongoDB. Datanya terpisah dan tidak saling disalin.
 
-## Yang sudah dibuat
+## Cara menjalankan
 
-- Website empat halaman (V3): **Beranda** (rak buku, sekilas koleksi, koleksi terbaru dari API), **Katalog** (cari judul/penulis, filter kategori, tanpa tombol pengelolaan), **Dashboard** (tambah, ubah, hapus buku lewat dialog, dengan konfirmasi hapus) dan **Tentang** (tujuan, teknologi, arsitektur, peran Docker Compose, tautan API). Membaca dan menulis data **tanpa login** (mode terbuka; dilindungi header aplikasi dan pembatasan laju). Login Basic Auth dapat diaktifkan lagi lewat `nginx/default.conf` (lihat `docs/publik/arsitektur.md`).
-- API Flask dengan output JSON (GET, POST, PUT, DELETE) dan validasi input.
-- Tiga container Docker Compose: **Nginx** (frontend + reverse proxy), **Flask** (API), **PostgreSQL** (SQL database).
-- Volume PostgreSQL agar data tetap tersimpan walaupun container dihentikan.
-- Skrip isi tiga buku contoh dan tes validasi sederhana.
+Yang dibutuhkan hanya Docker dan Docker Compose. Kami menjalankannya di Kali Linux dalam VirtualBox, tetapi di Linux lain atau Windows dengan Docker Desktop caranya sama.
 
-## 1. Persiapan Windows (paling mudah)
+1. Salin contoh pengaturan, lalu isi kata sandinya dengan nilai acak buatan sendiri. Ada tiga: `POSTGRES_PASSWORD`, `MONGO_ROOT_PASSWORD`, dan `MONGO_APP_PASSWORD`. File `.env` jangan pernah di-commit.
 
-1. Instal **Docker Desktop** dari [dokumentasi resmi](https://docs.docker.com/desktop/setup/install/windows-install/). Pilih backend WSL 2 apabila diminta. Aktifkan virtualisasi di BIOS jika sistem meminta. Instalasi WSL 2 jika belum ada dapat menggunakan PowerShell administrator: `wsl --install`; lakukan restart jika diminta.
-2. Buka **Docker Desktop** dan pastikan status engine berjalan.
-3. Buka PowerShell, periksa: `docker --version` dan `docker compose version`.
-4. Ekstrak ZIP, buka folder `LibraryKu_Project1`.
-5. Di folder tersebut, buat file `.env` dari `.env.example`:
-
-   ```powershell
-   Copy-Item .env.example .env
-   notepad .env
+   ```bash
+   cp .env.example .env
+   nano .env
    ```
 
-   **Ganti** nilai `POSTGRES_PASSWORD` dengan password lokal buatan sendiri, lalu simpan. Jangan masukkan file `.env` ke GitHub.
-6. Di terminal PowerShell dari folder yang berisi `compose.yaml`, jalankan:
+2. Bangun dan jalankan semuanya.
 
-   ```powershell
+   ```bash
    docker compose up -d --build
    docker compose ps
    ```
 
-7. Setelah tiga service siap, buka **http://localhost:8081**. Tampilan awal kosong sampai kamu memasukkan buku. Atau jalankan seeder pada langkah berikut.
+   Tunggu sampai `database`, `backend`, `mongodb`, dan `backend-nosql` berstatus healthy.
 
-   *Alternatif:* klik dua kali `START_WINDOWS.bat` setelah Docker Desktop aktif.
+3. Buka http://127.0.0.1:8081 di browser.
 
-## 2. Isi contoh data agar siap demo
+Kalau di Windows, pakai PowerShell dan ganti `cp` dengan `Copy-Item`. Di Kali, tambahkan `sudo` di depan perintah `docker`.
 
-Dengan Python di host Windows (opsional):
+Port 8081 sengaja hanya terbuka di komputer itu sendiri (`127.0.0.1`). Kalau ingin membukanya ke jaringan lokal, isi `FRONTEND_BIND=0.0.0.0` di `.env`.
 
-```powershell
-python scripts/seed_demo.py
+Mau mengisi contoh data? Jalankan `python scripts/seed_demo.py` untuk menambah tiga buku contoh ke PostgreSQL.
+
+## Cara kerjanya
+
+```text
+Browser
+   |
+   v
+Nginx (container frontend, satu-satunya yang terbuka ke host: port 8081)
+   |-- /api/sql/*    --> Flask SQL    --> PostgreSQL
+   |-- /api/nosql/*  --> Flask NoSQL  --> MongoDB
 ```
 
-Atau langsung tambahkan buku lewat formulir di website. Seeder dapat dijalankan ulang tanpa menambah judul contoh yang sama.
+Ada lima container:
 
-## 3. Uji API dari browser atau Postman
+| Container | Fungsinya |
+|---|---|
+| `frontend` | Nginx. Menyajikan halaman website dan meneruskan permintaan API ke backend yang tepat. |
+| `backend` | Flask untuk PostgreSQL. |
+| `database` | PostgreSQL 16. |
+| `backend-nosql` | Flask untuk MongoDB. |
+| `mongodb` | MongoDB 7. |
 
-| Tujuan | Method | URL |
+Beberapa hal yang kami atur supaya rapi dan aman:
+
+- Container saling menemukan lewat nama service di network `app_network`. Misalnya Flask menghubungi database di alamat `database:5432`.
+- MongoDB berada di network `nosql_network` yang tertutup. Hanya backend NoSQL yang bisa menjangkaunya.
+- Data tersimpan di volume `postgres_data` dan `mongo_data`, jadi tetap ada walaupun container dihentikan atau dibuat ulang.
+- Selain Nginx, tidak ada container yang membuka port ke host.
+
+Satu catatan jujur soal istilah: ini sistem berlapis (web, API, database) yang dipisah ke beberapa container. Satu API perpustakaan belum otomatis berarti banyak microservice bisnis yang berdiri sendiri. Tapi untuk tujuan praktikum, yaitu memisahkan service, menghubungkannya lewat network, menyimpan data di volume, dan mengaksesnya lewat API, semuanya sudah kami tunjukkan.
+
+## Mencoba API
+
+Alamat dasarnya `http://127.0.0.1:8081`. Ganti `sql` dengan `nosql` untuk memakai MongoDB.
+
+| Tujuan | Method | Alamat |
 |---|---|---|
-| Status koneksi | GET | `http://localhost:8081/api/health` |
-| Daftar buku | GET | `http://localhost:8081/api/books` |
-| Detail buku | GET | `http://localhost:8081/api/books/1` |
-| Tambah buku | POST | `http://localhost:8081/api/books` |
-| Ubah buku | PUT | `http://localhost:8081/api/books/1` |
-| Hapus buku | DELETE | `http://localhost:8081/api/books/1` |
+| Cek koneksi | GET | `/api/sql/health` |
+| Daftar buku | GET | `/api/sql/books` |
+| Satu buku | GET | `/api/sql/books/{id}` |
+| Tambah buku | POST | `/api/sql/books` |
+| Ubah buku | PUT | `/api/sql/books/{id}` |
+| Hapus buku | DELETE | `/api/sql/books/{id}` |
 
-**Contoh JSON body untuk POST/PUT:**
+Id di PostgreSQL berupa angka, sedangkan di MongoDB berupa teks 24 karakter. Alamat lama `/api/books` masih jalan dan mengarah ke PostgreSQL.
 
-```json
-{
-  "title": "Dasar Jaringan Komputer",
-  "author": "Dina Lestari",
-  "category": "Pendidikan",
-  "year": 2022,
-  "stock": 5
-}
+Untuk menambah buku, kirim JSON seperti ini. Permintaan yang mengubah data harus menyertakan header `X-Requested-With: libraryku` (website sudah mengirimnya sendiri, tapi di curl atau Postman perlu ditambahkan).
+
+```bash
+curl -X POST http://127.0.0.1:8081/api/sql/books \
+  -H "Content-Type: application/json" \
+  -H "X-Requested-With: libraryku" \
+  -d '{"title":"Dasar Jaringan Komputer","author":"Dina Lestari","category":"Pendidikan","year":2022,"stock":5}'
 ```
 
-Di Postman pilih **Body → raw → JSON**, tempel payload di atas. Contoh respons sukses dari POST (ID dinamis):
+Kalau berhasil, balasannya begini (nilai `id` akan berbeda):
 
 ```json
 {
@@ -106,102 +123,79 @@ Di Postman pilih **Body → raw → JSON**, tempel payload di atas. Contoh respo
 }
 ```
 
-**Penting:** JSON di atas adalah contoh respons yang dirancang oleh API, **bukan bukti hasil uji aktual**. Untuk laporan, jalankan aplikasi dan ambil tangkapan layar dari komputer sendiri.
+Aturan datanya: judul maksimal 150 karakter, penulis 100, kategori 60, tahun antara 1900 dan tahun depan, stok antara 0 dan 1.000.000. Data yang tidak sesuai dijawab status 400, dan semua pesan galat berbentuk JSON dengan kunci `error`.
 
-## 4. Perintah teknis penting
+## Tanpa login, jadi hati-hati
 
-```bash
-docker compose ps                  # melihat status container
-docker compose logs --tail=100     # melihat log
-docker compose logs backend        # log API Flask
-docker compose down                # mematikan service, data database tetap ada
-docker compose up -d              # menghidupkan kembali
-docker compose down -v             # HATI-HATI: hapus volume dan semua data buku
-```
+Website ini tidak meminta nama pengguna dan kata sandi. Siapa pun yang bisa membuka alamatnya bisa menambah, mengubah, dan menghapus buku, jadi isi dengan data contoh saja. Perlindungan yang tetap ada: header `X-Requested-With`, pembatasan jumlah permintaan, batas ukuran data, dan validasi di backend.
 
-## 5. Alternatif: Docker di dalam VirtualBox (Kali Linux)
+Kalau nanti butuh login lagi, ubah satu baris di `nginx/default.conf` (cari `map $request_method $auth_realm`). Langkah lengkapnya ada di `docs/publik/arsitektur.md`.
 
-Jika Docker Compose sudah terpasang di Kali Linux VM, ekstrak proyek ke Kali dan jalankan:
+## Akses dari internet
+
+Supaya bisa dibuka dari luar komputer, kami memakai Tailscale Funnel. Cukup sambungan keluar dari VM, jadi tidak perlu membuka port di router atau mengatur port forwarding VirtualBox. Alamat HTTPS kami: https://libraryku-kali.tail342a2f.ts.net/ (hanya aktif selama komputer dan VM-nya menyala).
 
 ```bash
-cp .env.example .env
-nano .env
-sudo docker compose up -d --build
-sudo docker compose ps
+./scripts/funnel.sh install   # pasang Tailscale
+./scripts/funnel.sh login     # masuk ke akun Tailscale
+./scripts/funnel.sh enable    # aktifkan alamat publik
+./scripts/funnel.sh off       # matikan lagi
 ```
 
-Pada browser Kali buka `http://localhost:8081`. VM memakai **NAT**, sehingga Windows host belum bisa membuka alamat itu. Jika dosen memang meminta akses dari host, tambahkan aturan **VirtualBox → Settings → Network → Adapter 1 → Advanced → Port Forwarding** (VM dimatikan dulu), misalnya **TCP, Host IP `127.0.0.1`, Host Port `18081`, Guest Port `8081`**, lalu buka `http://127.0.0.1:18081` di Windows. Tanyakan dulu ke dosen apa yang dimaksud "alamat public" pada PDF (lihat catatan di bagian akhir).
+Langkah rincinya ada di `docs/publik/aktivasi.md`.
 
-Verifikasi dan pengambilan bukti dengan skrip (hasil tersimpan di `bukti/`):
+## Pengujian
 
 ```bash
-./scripts/uji.sh docker     # container, health, port, network, volume, SELECT (hanya baca)
-./scripts/uji.sh api        # POST, GET, PUT, GET, DELETE, GET dengan satu buku uji (meminta konfirmasi)
-./scripts/uji.sh persist    # data bertahan setelah docker compose down tanpa -v (meminta konfirmasi)
+python3 scripts/test_api.py        # CRUD di PostgreSQL dan MongoDB
+python3 scripts/test_keamanan.py   # injeksi, XSS, CSRF, port
+python3 scripts/test_akses.py      # akses tanpa login, batas laju, galat JSON
+python3 scripts/run_ui_test.py     # uji tampilan di Firefox
+./scripts/ctl.sh verify            # baca isi database langsung dari container
 ```
 
-Untuk memasang Docker Engine di Kali, ikuti dokumentasi resmi [Docker Engine Debian](https://docs.docker.com/engine/install/debian/) dengan perhatian khusus bagian distribusi turunan seperti Kali. **Jangan** secara otomatis memakai nama rilis `kali-rolling` sebagai codename repo resmi Debian.
+Semua skrip hanya membuat buku uji dan menghapusnya lagi. Uji tampilan butuh Firefox terpasang.
 
-## 6. Arsitektur & hubungan dengan materi kuliah
+## Perintah Docker yang sering dipakai
 
-```text
-Browser (localhost:8081)
-           |
-           v
-    Nginx frontend (container)
-           | /api/* HTTP/JSON
-           v
-     Flask API (container)
-           | SQL/TCP 5432
-           v
-   PostgreSQL (container)
-           |
-           v
-     Docker named volume
+```bash
+docker compose ps                 # status container
+docker compose logs --tail=100    # log terakhir
+docker compose logs backend       # log API SQL
+docker compose down               # hentikan, data tetap aman
+docker compose up -d              # nyalakan lagi
 ```
 
-- **Container:** tiap komponen menjalankan proses dan dependensi terpisah.
-- **Network:** Docker bridge `app_network` memungkinkan backend menemukan database menggunakan hostname `database`.
-- **Storage:** volume bernama `postgres_data` menyimpan database secara persisten.
-- **API:** frontend mengirim permintaan HTTP ke Flask; Flask mengembalikan respons JSON.
-- **Port:** host 8081 diteruskan ke port 80 di container Nginx; backend dan database tidak dipublikasikan langsung ke host.
-- **Istilah:** ini arsitektur *containerized three-tier* dengan pemisahan layanan frontend, API, dan database. Dalam pengertian arsitektur software yang ketat, satu API bisnis ini **belum** merupakan beberapa microservice bisnis independen. Untuk kebutuhan instruksi Project 1 yang menggolongkan Docker sebagai “Microservices”, stack ini menunjukkan pemisahan service dan komunikasi antarcontainer secara konkret.
+Jangan menjalankan `docker compose down -v`. Opsi `-v` menghapus volume, jadi semua data buku ikut hilang.
 
-## 7. Masalah umum dan penyelesaian
+## Kalau ada masalah
 
-| Masalah | Langkah pemeriksaan |
+| Gejala | Yang bisa dicek |
 |---|---|
-| `docker` tidak dikenali | Jalankan Docker Desktop, cek `docker --version`; bila belum tersedia, instal Docker Desktop. |
-| `Cannot connect to Docker daemon` | Pastikan Docker Desktop/daemon Docker sudah menyala. |
-| Port 8081 telah dipakai | Cek `sudo ss -ltnp \| grep :8081`. Hentikan aplikasi lain tersebut, atau ubah `8081:80` pada Compose ke port bebas (misalnya `8082:80`) dan gunakan port itu. |
-| Website terbuka, data gagal dimuat | `docker compose ps` lalu `docker compose logs backend` / `docker compose logs database`. |
-| Login database gagal | Periksa nilai `.env`; perubahan password setelah volume terbentuk **tidak mengubah** password internal PostgreSQL secara otomatis. |
-| Tabel `books` tidak ditemukan | Pastikan file `database/init.sql` ada saat volume pertama dibuat. Jangan menghapus volume sembarangan. |
-| VM tidak bisa diakses dari Windows | Pastikan aturan VirtualBox NAT port forwarding dan tidak ada aplikasi lain di port host 8081. |
+| Perintah `docker` tidak dikenali | Pastikan Docker sudah terpasang dan menyala (di Windows, buka Docker Desktop). |
+| Muncul `permission denied` pada Docker | Tambahkan `sudo` di depan perintah, atau masukkan akun ke grup `docker`. |
+| Port 8081 sudah dipakai | Cek dengan `sudo ss -ltnp \| grep :8081`. Hentikan aplikasi yang memakainya, atau ganti `8081:80` di `compose.yaml` ke port lain. Di Kali kami sendiri bentrok di 8080, makanya memakai 8081. |
+| Website terbuka tapi data tidak muncul | Lihat `docker compose ps`, lalu `docker compose logs backend` atau `docker compose logs database`. |
+| Database menolak kata sandi | Kata sandi di `.env` yang diubah setelah volume dibuat tidak otomatis mengubah kata sandi di dalam database. |
+| Tabel `books` tidak ada | File `database/init.sql` hanya dijalankan saat volume pertama dibuat. Jangan hapus volume sembarangan. |
+| Muncul "Terlalu banyak permintaan" | Batas jumlah permintaan sedang tercapai. Tunggu beberapa detik, lalu coba lagi. |
 
-## 8. Checklist bukti penilaian
+## Isi folder
 
-Sebagian besar bukti dihasilkan oleh `./scripts/uji.sh`; daftar screenshot lengkap beserta cara mengambilnya ada di `docs/panduan-bukti.md`.
+| Folder | Isinya |
+|---|---|
+| `backend/`, `backend_nosql/` | Kode API Flask beserta Dockerfile-nya |
+| `frontend/` | Halaman website (HTML, CSS, JavaScript) |
+| `nginx/` | Pengaturan Nginx |
+| `database/`, `mongodb/` | Skema awal PostgreSQL dan pengguna awal MongoDB |
+| `scripts/` | Skrip pengujian dan pengelolaan (`ctl.sh`, `funnel.sh`) |
+| `tests/` | Unit test validasi |
+| `docs/` | Dokumentasi arsitektur, keamanan, pengujian, dan akses publik |
+| `bukti/` | Hasil pengujian dan screenshot |
+| `laporan/` | Laporan (`laporan.docx`) dan slide presentasi |
 
-- [ ] Screenshot Docker Compose `ps`: frontend/backend/database aktif dan health check sehat.
-- [ ] Screenshot halaman website dan data tabel buku.
-- [ ] Screenshot aksi Create (buku bertambah).
-- [ ] Screenshot aksi Update (data buku berubah).
-- [ ] Screenshot aksi Delete (baris terhapus).
-- [ ] Screenshot endpoint GET `/api/books` menampilkan JSON di browser.
-- [ ] Screenshot Postman atau browser API POST/PUT/DELETE bila dosen ingin melihat method.
-- [ ] Jelaskan flow: browser → Nginx → Flask → PostgreSQL → volume.
-- [ ] Ulangi `docker compose down` lalu `up -d`, pastikan data tetap ada.
+Dokumentasi lanjutan ada di `docs/unified/` (arsitektur dua database, pengujian, keamanan, panduan demo) dan `docs/publik/` (akses dari internet).
 
-## File laporan & presentasi
+## Catatan soal "alamat public"
 
-Lihat `laporan/laporan.docx` (urutan bab mengikuti PDF penugasan; berisi screenshot website dan respons JSON dari aplikasi yang berjalan), `laporan/presentasi.pptx`, dan `docs/naskah.md`. Screenshot laporan ada di `bukti/laporan/` dan dapat dibuat ulang dengan `python3 scripts/ambil_screenshot.py`; JSON dengan `python3 scripts/ambil_json.py`; DOCX dengan `~/.venvs/libraryku-docs/bin/python scripts/buat_laporan.py`. Ekspor PDF dari Word bila diperlukan.
-
-## Catatan kecil pada instruksi tugas
-
-PDF penugasan menyatakan aplikasi berjalan secara lokal (`localhost`) dan **tidak perlu di-deploy ke cloud**, tetapi di bagian verifikasi juga tertulis “alamat public”. Implementasi ini mengikuti petunjuk umum dan menampilkan alamat yang bisa diakses dari host (melalui port Docker/VM). Jika dosen memang mensyaratkan IP publik internet, klarifikasikan terlebih dahulu karena itu berbeda dari instruksi umum.
-
-## LibraryKu Unified: SQL (PostgreSQL) + NoSQL (MongoDB)
-
-Satu website, dua database terpisah, dipilih lewat pilihan **SQL / NoSQL** di Katalog dan Dashboard. Endpoint: `/api/sql/books` (PostgreSQL, alamat lama `/api/books` tetap berlaku) dan `/api/nosql/books` (MongoDB). Dokumentasi lengkap di `docs/unified/`:
-`audit.md`, `arsitektur.md`, `pengujian.md`, `keamanan.md`, `demo.md`, `screenshot.md` (di folder `docs/unified/`). Operasi Docker dijalankan lewat `./scripts/ctl.sh` (bukti di `bukti/unified/`). Tambahkan `MONGO_ROOT_PASSWORD` dan `MONGO_APP_PASSWORD` ke `.env` (lihat `.env.example`). Penulisan data tanpa login (mode terbuka), dilindungi header aplikasi dan pembatasan laju; port 8081 hanya di `127.0.0.1`. Akses publik HTTPS lewat Tailscale Funnel: https://libraryku-kali.tail342a2f.ts.net/ (aktif; teruji dari Kali dan dilaporkan berhasil dari Android data seluler). Panduan di `docs/publik/` dan `./scripts/funnel.sh`.
+PDF penugasan menyebut aplikasi dijalankan lokal tanpa perlu di-deploy ke cloud, tetapi bagian verifikasinya meminta aplikasi bisa dibuka lewat "alamat public". Kami menyediakan keduanya: alamat lokal `127.0.0.1:8081` dan alamat HTTPS lewat Tailscale Funnel. Arti pastinya masih perlu kami tanyakan ke dosen.
