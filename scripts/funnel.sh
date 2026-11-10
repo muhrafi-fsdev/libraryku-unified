@@ -5,9 +5,9 @@
 #
 #   ./scripts/funnel.sh install       pasang Tailscale (skrip instalasi resmi tailscale.com, diunduh dulu ke berkas)
 #   ./scripts/funnel.sh login         masuk ke akun Tailscale (membuka URL persetujuan perangkat)
-#   ./scripts/funnel.sh enable        aktifkan Funnel ke 127.0.0.1:8081 (menolak bila tulis anonim belum diblokir)
+#   ./scripts/funnel.sh enable        aktifkan Funnel ke 127.0.0.1:8081 (menolak bila perlindungan CSRF belum aktif)
 #   ./scripts/funnel.sh status        status Tailscale, Funnel, URL publik, aktif saat boot
-#   ./scripts/funnel.sh check         uji dari Kali lewat URL publik: sertifikat TLS, baca, tulis anonim ditolak
+#   ./scripts/funnel.sh check         uji dari Kali lewat URL publik: sertifikat TLS, baca, tulis tanpa header aplikasi ditolak
 #   ./scripts/funnel.sh logs          log tailscaled
 #   ./scripts/funnel.sh off           matikan Funnel (akses publik putus; website lokal tetap jalan)
 #
@@ -47,14 +47,14 @@ enable)
   need_ts
   say "=== ENABLE FUNNEL | $(date '+%F %T %Z') ==="
   say "--- pemeriksaan keamanan sebelum dipublikasikan ---"
-  CODE="$(curl -s -m 10 -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'X-Requested-With: libraryku' -d '{}' "$LOCAL/api/sql/books" || true)"
-  say "POST anonim ke $LOCAL/api/sql/books -> HTTP $CODE (harus 401)"
-  if [ "$CODE" != "401" ]; then
-    say "[DITOLAK] Penulisan anonim belum diblokir. Jalankan dulu: ./scripts/ctl.sh apply-frontend, lalu ulangi."
+  CODE="$(curl -s -m 10 -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{}' "$LOCAL/api/sql/books" || true)"
+  say "POST tanpa header aplikasi ke $LOCAL/api/sql/books -> HTTP $CODE (harus 403)"
+  if [ "$CODE" != "403" ]; then
+    say "[DITOLAK] Perlindungan CSRF (header X-Requested-With) belum aktif. Jalankan dulu: ./scripts/ctl.sh reload-nginx, lalu ulangi."
     exit 1
   fi
-  say "[OK] tulis anonim diblokir"
-  confirm "Aksi: mempublikasikan Nginx LibraryKu (127.0.0.1:8081) ke INTERNET lewat Tailscale Funnel dengan HTTPS. Siapa pun yang tahu alamatnya dapat MELIHAT koleksi; mengubah data tetap butuh login dashboard. Yang dipublikasikan hanya port 8081, bukan database atau port lain."
+  say "[OK] perlindungan CSRF aktif"
+  confirm "Aksi: mempublikasikan Nginx LibraryKu (127.0.0.1:8081) ke INTERNET lewat Tailscale Funnel dengan HTTPS. Siapa pun yang tahu alamatnya dapat MELIHAT koleksi; mengubah data TIDAK memakai login (mode terbuka), hanya dilindungi header aplikasi dan pembatasan laju. Yang dipublikasikan hanya port 8081, bukan database atau port lain."
   sudo tailscale funnel --bg 8081
   sleep 3
   sudo tailscale funnel status
@@ -76,11 +76,11 @@ check)
   echo | openssl s_client -connect "$H:443" -servername "$H" 2>/dev/null | openssl x509 -noout -subject -issuer -dates 2>&1 | head -4
   say "--- 2. Halaman dan API baca (terbuka) ---"
   for p in / /api/sql/health /api/nosql/health /api/sql/books; do curl -s -m 20 -o /dev/null -w "GET $p -> HTTP %{http_code}\n" "https://$H$p"; done
-  say "--- 3. Tulis tanpa login (harus 401) ---"
+  say "--- 3. Tulis dengan header aplikasi tetapi data kosong (harus 400 validasi; tidak membuat data) ---"
   curl -s -m 20 -o /dev/null -w "POST /api/sql/books -> HTTP %{http_code}\n" -X POST -H 'Content-Type: application/json' -H 'X-Requested-With: libraryku' -d '{}' "https://$H/api/sql/books"
   curl -s -m 20 -o /dev/null -w "POST /api/nosql/books -> HTTP %{http_code}\n" -X POST -H 'Content-Type: application/json' -H 'X-Requested-With: libraryku' -d '{}' "https://$H/api/nosql/books"
-  curl -s -m 20 -o /dev/null -w "DELETE /api/nosql/books/507f1f77bcf86cd799439011 -> HTTP %{http_code}\n" -X DELETE -H 'X-Requested-With: libraryku' "https://$H/api/nosql/books/507f1f77bcf86cd799439011"
-  say "--- 4. Tulis tanpa header aplikasi (harus 401/403) ---"
+  curl -s -m 20 -o /dev/null -w "DELETE id yang tidak ada -> HTTP %{http_code}\n" -X DELETE -H 'X-Requested-With: libraryku' "https://$H/api/nosql/books/507f1f77bcf86cd799439011"
+  say "--- 4. Tulis tanpa header aplikasi (harus 403) ---"
   curl -s -m 20 -o /dev/null -w "POST tanpa header -> HTTP %{http_code}\n" -X POST -H 'Content-Type: application/json' -d '{}' "https://$H/api/sql/books"
   say "--- 5. Port 80/HTTP tidak dipakai Funnel (hanya 443) ---"
   curl -s -m 8 -o /dev/null -w "http://$H/ -> HTTP %{http_code}\n" "http://$H/" || say "http:// tidak terjangkau (wajar: hanya HTTPS)" ;;

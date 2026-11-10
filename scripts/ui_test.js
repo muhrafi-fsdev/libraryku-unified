@@ -2,7 +2,7 @@ const $=id=>document.getElementById(id), sleep=ms=>new Promise(r=>setTimeout(r,m
 var out=[]; const ok=(n,c,d='')=>out.push((c?'PASS ':'FAIL ')+n+(d!==''?' | '+d:''));
 const errs=[], csp=[]; addEventListener('error',e=>errs.push(e.message)); addEventListener('unhandledrejection',e=>errs.push(String(e.reason))); addEventListener('securitypolicyviolation',e=>csp.push(e.violatedDirective+' '+e.blockedURI));
 const net=[]; const __AUTH=arguments[0]; const of=window.fetch.bind(window); let delaySql=0;
-window.fetch=async(u,o={})=>{ if(delaySql && String(u).includes('/api/sql/books') && (o.method||'GET')==='GET'){ await sleep(delaySql);} if(__AUTH && (o.method||'GET')!=='GET'){ o={...o, headers:{...(o.headers||{}), Authorization:__AUTH}}; } const r=await of(u,o); net.push([o.method||'GET',String(u),r.status]); return r; };
+window.fetch=async(u,o={})=>{ if(delaySql && String(u).includes('/api/sql/books') && (o.method||'GET')==='GET'){ await sleep(delaySql);} if(__AUTH && ((o.method||'GET')!=='GET' || String(u).includes('/api/auth-check'))){ o={...o, headers:{...(o.headers||{}), Authorization:__AUTH}}; } const r=await of(u,o); net.push([o.method||'GET',String(u),r.status]); return r; };
 const set=(el,v)=>{el.value=v; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true}))};
 const radio=(grp,v)=>document.querySelector(`input[name="${grp}"][value="${v}"]`);
 const rows=()=>[...document.querySelectorAll('#bookTable tr[data-id]')];

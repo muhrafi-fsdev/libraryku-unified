@@ -1,5 +1,8 @@
 # Akses publik HTTPS LibraryKu Unified (Tailscale Funnel)
 
+> **Pembaruan (mode terbuka):** nama pengguna dan kata sandi untuk menambah, mengubah, dan menghapus data **sudah dicabut** atas permintaan pemilik proyek. Penulisan kini hanya dilindungi header `X-Requested-With` (CSRF), pembatasan laju 10 permintaan/detik (burst 20), batas badan 16 KB, dan validasi backend. Akibatnya siapa pun yang tahu alamat publik dapat mengubah data. Untuk mengaktifkan login lagi: di `nginx/default.conf` ganti `default off;` pada `map $request_method $auth_realm` menjadi `default "LibraryKu Dashboard";`, pastikan `nginx/auth/htpasswd` ada, lalu `./scripts/ctl.sh reload-nginx`. Bagian di bawah yang menyebut login menggambarkan keadaan sebelum perubahan ini.
+
+
 Status (2026-11-10): pengamanan aplikasi aktif dan teruji. Funnel **aktif**, alamat publik: **https://libraryku-kali.tail342a2f.ts.net/** (teruji dari dalam Kali lewat alamat publik; dilaporkan berhasil dari Android/data seluler oleh pengguna, lihat `pengujian.md`).
 
 ## 1. Arsitektur
@@ -32,7 +35,7 @@ Pengunjung membuka alamat `https://...ts.net`. Nama itu menunjuk ke relay Tailsc
 | Baca publik (read-only) | GET/HEAD terbuka untuk semua pengunjung | `kontrol_akses_*.txt` |
 | Tulis wajib login | POST/PUT/DELETE di `/api/sql`, `/api/nosql`, dan `/api/books` memakai Basic Auth Nginx; anonim, kata sandi salah, dan nama pengguna salah -> 401 JSON | idem (41 PASS) |
 | Perlindungan CSRF | Tulis wajib header `X-Requested-With: libraryku` (tanpanya 403, walau login benar); POST ala form `text/plain` ditolak; preflight CORS lintas-origin tidak diizinkan | idem |
-| Pembatasan laju | tulis 2 permintaan/detik (burst 5), baca 20/detik (burst 40); percobaan login salah ikut dibatasi (429 JSON + Retry-After) | idem |
+| Pembatasan laju | tulis 10 permintaan/detik (burst 20; semua pengunjung Funnel tampak satu alamat, jadi batas dipakai bersama), baca 20/detik (burst 40); percobaan login salah ikut dibatasi (429 JSON + Retry-After) | idem |
 | Validasi input | tipe ketat, ID MongoDB 24 heks, query berparameter; injeksi SQL/NoSQL dan XSS diuji | `security_tests_*.txt` |
 | Tidak ada port internal terbuka | 8081 hanya di loopback; PostgreSQL, MongoDB, 5000 tidak terbuka | `kontrol_akses_*.txt` |
 | Tanpa kebocoran | galat JSON generik; kredensial tidak diteruskan ke backend; header keamanan di semua respons | idem |

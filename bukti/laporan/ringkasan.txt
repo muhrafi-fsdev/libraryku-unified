@@ -1,0 +1,26 @@
+alamat: https://libraryku-kali.tail342a2f.ts.net  | awal: SQL=7 NoSQL=1
+ok  01-beranda.png
+ok  02-katalog-sql.png
+ok  03-dashboard-sql.png
+ok  04-sql-dialog-tambah.png
+ok  05-sql-sesudah-create.png
+ok  06-sql-dialog-ubah.png
+ok  07-sql-sesudah-update.png
+ok  08-sql-konfirmasi-hapus.png
+ok  09-sql-sesudah-delete.png
+ok  10-dashboard-nosql.png
+ok  11-nosql-dialog-tambah.png
+ok  12-nosql-sesudah-create.png
+id dokumen MongoDB: 6af341f1833119cdbfd7623d
+ok  21-api-nosql-books.png
+ok  25-api-nosql-book-by-id.png
+ok  13-nosql-sesudah-delete.png
+ok  15-perbandingan.png
+ok  16-tentang.png
+ok  20-api-sql-books.png
+ok  22-api-sql-health.png
+ok  23-api-nosql-health.png
+ok  24-api-sql-book-by-id.png
+ok  30-mobile-beranda.png
+ok  31-mobile-dashboard.png
+akhir: SQL=7 NoSQL=1  | data kembali seperti awal: True

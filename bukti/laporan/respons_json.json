@@ -1,0 +1,311 @@
+[
+ {
+  "label": "PostgreSQL: health",
+  "method": "GET",
+  "path": "/api/sql/health",
+  "xrw": true,
+  "status": 200,
+  "body": {
+   "database": "connected",
+   "service": "libraryku-api",
+   "status": "ok"
+  }
+ },
+ {
+  "label": "PostgreSQL: daftar buku",
+  "method": "GET",
+  "path": "/api/sql/books",
+  "xrw": true,
+  "status": 200,
+  "body": {
+   "data": [
+    {
+     "author": "RAJA JULI",
+     "category": "Umum",
+     "id": 160,
+     "stock": 100,
+     "title": "TUTORIAL TEBANG POHON",
+     "year": 2024
+    },
+    {
+     "author": "MAS GATOT",
+     "category": "Pendidikan",
+     "id": 127,
+     "stock": 10000,
+     "title": "TIPS BERBISNIS DI NGAWI",
+     "year": 2024
+    },
+    {
+     "author": "PAK CIK",
+     "category": "Pendidikan",
+     "id": 94,
+     "stock": 10000,
+     "title": "CARA BERBISNIS KANGKUNG",
+     "year": 2024
+    },
+    {
+     "author": "MAS FUAD",
+     "category": "Sejarah",
+     "id": 93,
+     "stock": 1000,
+     "title": "ILMU HYTAM",
+     "year": 2021
+    },
+    {
+     "author": "AHMAD TEMOLA",
+     "category": "Teknologi",
+     "id": 10,
+     "stock": 10000,
+     "title": "TEKNIK SIPIL",
+     "year": 2023
+    },
+    {
+     "author": "GUS RUSDI",
+     "category": "Pendidikan",
+     "id": 2,
+     "stock": 1000,
+     "title": "REKAYASA AGAMA",
+     "year": 2022
+    },
+    {
+     "author": "AMBATUKAM",
+     "category": "Teknologi",
+     "id": 1,
+     "stock": 100,
+     "title": "DASAR TELEKOMUNIKASI",
+     "year": 2021
+    }
+   ],
+   "total": 7
+  }
+ },
+ {
+  "label": "PostgreSQL: tambah buku (valid)",
+  "method": "POST",
+  "path": "/api/sql/books",
+  "xrw": true,
+  "status": 201,
+  "body": {
+   "data": {
+    "author": "Kelompok Cloud",
+    "category": "Teknologi",
+    "id": 170,
+    "stock": 12,
+    "title": "Cloud Computing Praktis",
+    "year": 2025
+   },
+   "message": "Buku berhasil ditambahkan."
+  }
+ },
+ {
+  "label": "PostgreSQL: ambil satu buku",
+  "method": "GET",
+  "path": "/api/sql/books/170",
+  "xrw": true,
+  "status": 200,
+  "body": {
+   "data": {
+    "author": "Kelompok Cloud",
+    "category": "Teknologi",
+    "id": 170,
+    "stock": 12,
+    "title": "Cloud Computing Praktis",
+    "year": 2025
+   }
+  }
+ },
+ {
+  "label": "PostgreSQL: ubah buku",
+  "method": "PUT",
+  "path": "/api/sql/books/170",
+  "xrw": true,
+  "status": 200,
+  "body": {
+   "data": {
+    "author": "Kelompok Cloud",
+    "category": "Teknologi",
+    "id": 170,
+    "stock": 30,
+    "title": "Cloud Computing Praktis",
+    "year": 2025
+   },
+   "message": "Buku berhasil diubah."
+  }
+ },
+ {
+  "label": "PostgreSQL: tambah buku (data tidak valid)",
+  "method": "POST",
+  "path": "/api/sql/books",
+  "xrw": true,
+  "status": 400,
+  "body": {
+   "details": {
+    "title": "Wajib diisi dengan teks.",
+    "year": "Tahun harus angka bulat antara 1900 dan 2027."
+   },
+   "error": "Data buku tidak valid."
+  }
+ },
+ {
+  "label": "PostgreSQL: tulis tanpa header aplikasi",
+  "method": "POST",
+  "path": "/api/sql/books",
+  "xrw": false,
+  "status": 403,
+  "body": {
+   "error": "Permintaan tulis harus berasal dari aplikasi LibraryKu."
+  }
+ },
+ {
+  "label": "PostgreSQL: hapus buku",
+  "method": "DELETE",
+  "path": "/api/sql/books/170",
+  "xrw": true,
+  "status": 200,
+  "body": {
+   "id": 170,
+   "message": "Buku berhasil dihapus."
+  }
+ },
+ {
+  "label": "PostgreSQL: ambil buku yang sudah dihapus",
+  "method": "GET",
+  "path": "/api/sql/books/170",
+  "xrw": true,
+  "status": 404,
+  "body": {
+   "error": "Buku tidak ditemukan."
+  }
+ },
+ {
+  "label": "MongoDB: health",
+  "method": "GET",
+  "path": "/api/nosql/health",
+  "xrw": true,
+  "status": 200,
+  "body": {
+   "database": "connected",
+   "engine": "mongodb",
+   "service": "libraryku-nosql-api",
+   "status": "ok"
+  }
+ },
+ {
+  "label": "MongoDB: daftar buku",
+  "method": "GET",
+  "path": "/api/nosql/books",
+  "xrw": true,
+  "status": 200,
+  "body": {
+   "data": [
+    {
+     "author": "ALEX",
+     "category": "Pendidikan",
+     "id": "6af34096833119cdbfd76237",
+     "stock": 1000,
+     "title": "DASAR JARINGAN",
+     "year": 2023
+    }
+   ],
+   "total": 1
+  }
+ },
+ {
+  "label": "MongoDB: tambah buku (valid)",
+  "method": "POST",
+  "path": "/api/nosql/books",
+  "xrw": true,
+  "status": 201,
+  "body": {
+   "data": {
+    "author": "Kelompok Cloud",
+    "category": "Teknologi",
+    "id": "6af341c2833119cdbfd7623c",
+    "stock": 12,
+    "title": "Cloud Computing Praktis",
+    "year": 2025
+   },
+   "message": "Buku berhasil ditambahkan."
+  }
+ },
+ {
+  "label": "MongoDB: ambil satu buku",
+  "method": "GET",
+  "path": "/api/nosql/books/6af341c2833119cdbfd7623c",
+  "xrw": true,
+  "status": 200,
+  "body": {
+   "data": {
+    "author": "Kelompok Cloud",
+    "category": "Teknologi",
+    "id": "6af341c2833119cdbfd7623c",
+    "stock": 12,
+    "title": "Cloud Computing Praktis",
+    "year": 2025
+   }
+  }
+ },
+ {
+  "label": "MongoDB: ubah buku",
+  "method": "PUT",
+  "path": "/api/nosql/books/6af341c2833119cdbfd7623c",
+  "xrw": true,
+  "status": 200,
+  "body": {
+   "data": {
+    "author": "Kelompok Cloud",
+    "category": "Teknologi",
+    "id": "6af341c2833119cdbfd7623c",
+    "stock": 30,
+    "title": "Cloud Computing Praktis",
+    "year": 2025
+   },
+   "message": "Buku berhasil diubah."
+  }
+ },
+ {
+  "label": "MongoDB: tambah buku (data tidak valid)",
+  "method": "POST",
+  "path": "/api/nosql/books",
+  "xrw": true,
+  "status": 400,
+  "body": {
+   "details": {
+    "title": "Wajib diisi dengan teks.",
+    "year": "Tahun harus angka bulat antara 1900 dan 2027."
+   },
+   "error": "Data buku tidak valid."
+  }
+ },
+ {
+  "label": "MongoDB: tulis tanpa header aplikasi",
+  "method": "POST",
+  "path": "/api/nosql/books",
+  "xrw": false,
+  "status": 403,
+  "body": {
+   "error": "Permintaan tulis harus berasal dari aplikasi LibraryKu."
+  }
+ },
+ {
+  "label": "MongoDB: hapus buku",
+  "method": "DELETE",
+  "path": "/api/nosql/books/6af341c2833119cdbfd7623c",
+  "xrw": true,
+  "status": 200,
+  "body": {
+   "id": "6af341c2833119cdbfd7623c",
+   "message": "Buku berhasil dihapus."
+  }
+ },
+ {
+  "label": "MongoDB: ambil buku yang sudah dihapus",
+  "method": "GET",
+  "path": "/api/nosql/books/6af341c2833119cdbfd7623c",
+  "xrw": true,
+  "status": 404,
+  "body": {
+   "error": "Buku tidak ditemukan."
+  }
+ }
+]

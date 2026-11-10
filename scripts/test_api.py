@@ -22,7 +22,7 @@ def _auth_header():
         return {"Authorization": "Basic " + token}
     except Exception:
         return {}
-AUTH = _auth_header() if os.environ.get("LIBRARYKU_NO_AUTH") != "1" else {}
+AUTH = _auth_header() if os.environ.get("LIBRARYKU_AUTH") == "1" else {}  # mode terbuka: tanpa login; LIBRARYKU_AUTH=1 bila login diaktifkan lagi
 
 
 def call(method, path, body=None, raw=None, headers=None):
@@ -31,7 +31,7 @@ def call(method, path, body=None, raw=None, headers=None):
     if method not in ("GET", "HEAD"):
         hdrs.update(AUTH)
         hdrs["X-Requested-With"] = "libraryku"
-        time.sleep(0.6)  # jeda: batas laju tulis 2 permintaan/detik
+        time.sleep(0.6)  # jeda agar tidak kena batas laju tulis
     hdrs.update(headers or {})
     request = urllib.request.Request(BASE + path, data=data, method=method, headers=hdrs)
     try:

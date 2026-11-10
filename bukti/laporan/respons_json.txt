@@ -1,0 +1,101 @@
+Alamat dasar: https://libraryku-kali.tail342a2f.ts.net
+
+### PostgreSQL: health
+GET /api/sql/health
+HTTP 200
+{"database":"connected","service":"libraryku-api","status":"ok"}
+
+### PostgreSQL: daftar buku
+GET /api/sql/books
+HTTP 200
+{"data":[{"author":"RAJA JULI","category":"Umum","id":160,"stock":100,"title":"TUTORIAL TEBANG POHON","year":2024},{"author":"MAS GATOT","category":"Pendidikan","id":127,"stock":10000,"title":"TIPS BERBISNIS DI NGAWI","year":2024},{"author":"PAK CIK","category":"Pendidikan","id":94,"stock":10000,"title":"CARA BERBISNIS KANGKUNG","year":2024},{"author":"MAS FUAD","category":"Sejarah","id":93,"stock":1000,"title":"ILMU HYTAM","year":2021},{"author":"AHMAD TEMOLA","category":"Teknologi","id":10,"stock":10000,"title":"TEKNIK SIPIL","year":2023},{"author":"GUS RUSDI","category":"Pendidikan","id":2,"stock":1000,"title":"REKAYASA AGAMA","year":2022},{"author":"AMBATUKAM","category":"Teknologi","id":1,"stock":100,"title":"DASAR TELEKOMUNIKASI","year":2021}],"total":7}
+
+### PostgreSQL: tambah buku (valid)
+POST /api/sql/books
+Body: {"title": "Cloud Computing Praktis", "author": "Kelompok Cloud", "category": "Teknologi", "year": 2025, "stock": 12}
+HTTP 201
+{"data":{"author":"Kelompok Cloud","category":"Teknologi","id":170,"stock":12,"title":"Cloud Computing Praktis","year":2025},"message":"Buku berhasil ditambahkan."}
+
+### PostgreSQL: ambil satu buku
+GET /api/sql/books/170
+HTTP 200
+{"data":{"author":"Kelompok Cloud","category":"Teknologi","id":170,"stock":12,"title":"Cloud Computing Praktis","year":2025}}
+
+### PostgreSQL: ubah buku
+PUT /api/sql/books/170
+Body: {"title": "Cloud Computing Praktis", "author": "Kelompok Cloud", "category": "Teknologi", "year": 2025, "stock": 30}
+HTTP 200
+{"data":{"author":"Kelompok Cloud","category":"Teknologi","id":170,"stock":30,"title":"Cloud Computing Praktis","year":2025},"message":"Buku berhasil diubah."}
+
+### PostgreSQL: tambah buku (data tidak valid)
+POST /api/sql/books
+Body: {"title": "", "author": "Kelompok Cloud", "category": "Teknologi", "year": 1800, "stock": 12}
+HTTP 400
+{"details":{"title":"Wajib diisi dengan teks.","year":"Tahun harus angka bulat antara 1900 dan 2027."},"error":"Data buku tidak valid."}
+
+### PostgreSQL: tulis tanpa header aplikasi
+POST /api/sql/books
+Body: {"title": "Cloud Computing Praktis", "author": "Kelompok Cloud", "category": "Teknologi", "year": 2025, "stock": 12}
+(tanpa header aplikasi)
+HTTP 403
+{"error":"Permintaan tulis harus berasal dari aplikasi LibraryKu."}
+
+### PostgreSQL: hapus buku
+DELETE /api/sql/books/170
+HTTP 200
+{"id":170,"message":"Buku berhasil dihapus."}
+
+### PostgreSQL: ambil buku yang sudah dihapus
+GET /api/sql/books/170
+HTTP 404
+{"error":"Buku tidak ditemukan."}
+
+### MongoDB: health
+GET /api/nosql/health
+HTTP 200
+{"database":"connected","engine":"mongodb","service":"libraryku-nosql-api","status":"ok"}
+
+### MongoDB: daftar buku
+GET /api/nosql/books
+HTTP 200
+{"data":[{"author":"ALEX","category":"Pendidikan","id":"6af34096833119cdbfd76237","stock":1000,"title":"DASAR JARINGAN","year":2023}],"total":1}
+
+### MongoDB: tambah buku (valid)
+POST /api/nosql/books
+Body: {"title": "Cloud Computing Praktis", "author": "Kelompok Cloud", "category": "Teknologi", "year": 2025, "stock": 12}
+HTTP 201
+{"data":{"author":"Kelompok Cloud","category":"Teknologi","id":"6af341c2833119cdbfd7623c","stock":12,"title":"Cloud Computing Praktis","year":2025},"message":"Buku berhasil ditambahkan."}
+
+### MongoDB: ambil satu buku
+GET /api/nosql/books/6af341c2833119cdbfd7623c
+HTTP 200
+{"data":{"author":"Kelompok Cloud","category":"Teknologi","id":"6af341c2833119cdbfd7623c","stock":12,"title":"Cloud Computing Praktis","year":2025}}
+
+### MongoDB: ubah buku
+PUT /api/nosql/books/6af341c2833119cdbfd7623c
+Body: {"title": "Cloud Computing Praktis", "author": "Kelompok Cloud", "category": "Teknologi", "year": 2025, "stock": 30}
+HTTP 200
+{"data":{"author":"Kelompok Cloud","category":"Teknologi","id":"6af341c2833119cdbfd7623c","stock":30,"title":"Cloud Computing Praktis","year":2025},"message":"Buku berhasil diubah."}
+
+### MongoDB: tambah buku (data tidak valid)
+POST /api/nosql/books
+Body: {"title": "", "author": "Kelompok Cloud", "category": "Teknologi", "year": 1800, "stock": 12}
+HTTP 400
+{"details":{"title":"Wajib diisi dengan teks.","year":"Tahun harus angka bulat antara 1900 dan 2027."},"error":"Data buku tidak valid."}
+
+### MongoDB: tulis tanpa header aplikasi
+POST /api/nosql/books
+Body: {"title": "Cloud Computing Praktis", "author": "Kelompok Cloud", "category": "Teknologi", "year": 2025, "stock": 12}
+(tanpa header aplikasi)
+HTTP 403
+{"error":"Permintaan tulis harus berasal dari aplikasi LibraryKu."}
+
+### MongoDB: hapus buku
+DELETE /api/nosql/books/6af341c2833119cdbfd7623c
+HTTP 200
+{"id":"6af341c2833119cdbfd7623c","message":"Buku berhasil dihapus."}
+
+### MongoDB: ambil buku yang sudah dihapus
+GET /api/nosql/books/6af341c2833119cdbfd7623c
+HTTP 404
+{"error":"Buku tidak ditemukan."}

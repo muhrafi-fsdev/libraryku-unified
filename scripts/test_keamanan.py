@@ -11,14 +11,14 @@ def _auth_header():
         return {"Authorization": "Basic " + token}
     except Exception:
         return {}
-AUTH = _auth_header() if os.environ.get("LIBRARYKU_NO_AUTH") != "1" else {}
+AUTH = _auth_header() if os.environ.get("LIBRARYKU_AUTH") == "1" else {}  # mode terbuka: tanpa login; LIBRARYKU_AUTH=1 bila login diaktifkan lagi
 
 
 def call(m, p, body=None, raw=None, headers=None):
     data = raw if raw is not None else (json.dumps(body).encode() if body is not None else None)
     h = {"Content-Type": "application/json"} if data is not None else {}
     if m not in ("GET", "HEAD", "OPTIONS"):
-        h.update(AUTH); h["X-Requested-With"] = "libraryku"; time.sleep(0.6)  # jeda: batas laju tulis 2 permintaan/detik
+        h.update(AUTH); h["X-Requested-With"] = "libraryku"; time.sleep(0.6)  # jeda agar tidak kena batas laju tulis
     h.update(headers or {})
     try:
         with urllib.request.urlopen(urllib.request.Request(BASE + p, data=data, method=m, headers=h), timeout=15) as x:

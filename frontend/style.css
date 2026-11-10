@@ -559,6 +559,6 @@ body[data-mode="nosql"] .btn-primary:not(:disabled):hover { background: #004d37;
   .cmp-live { grid-template-columns: minmax(0, 1fr); }
   .kv > div { grid-template-columns: 100px minmax(0, 1fr); }
   .mode-option span { min-width: 120px; }
-  .nav a { padding: 0 3px; font-size: 0.9375rem; }
-  .nav { gap: 0; }
+  .nav a { padding: 0 3px; font-size: 0.875rem; }
+  .nav { gap: 2px; }
 }

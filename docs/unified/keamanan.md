@@ -1,5 +1,8 @@
 # Review keamanan LibraryKu Unified (2026-11-10)
 
+> **Pembaruan (mode terbuka):** nama pengguna dan kata sandi untuk menambah, mengubah, dan menghapus data **sudah dicabut** atas permintaan pemilik proyek. Penulisan kini hanya dilindungi header `X-Requested-With` (CSRF), pembatasan laju 10 permintaan/detik (burst 20), batas badan 16 KB, dan validasi backend. Akibatnya siapa pun yang tahu alamat publik dapat mengubah data. Untuk mengaktifkan login lagi: di `nginx/default.conf` ganti `default off;` pada `map $request_method $auth_realm` menjadi `default "LibraryKu Dashboard";`, pastikan `nginx/auth/htpasswd` ada, lalu `./scripts/ctl.sh reload-nginx`. Bagian di bawah yang menyebut login menggambarkan keadaan sebelum perubahan ini.
+
+
 > Pembaruan 2026-11-10 (malam): temuan "tanpa autentikasi" di bawah sudah dimitigasi: penulisan kini wajib login (Basic Auth Nginx), header CSRF, dan pembatasan laju; 8081 hanya di 127.0.0.1. Bukti: `docs/publik/pengujian.md`. Baca tetap terbuka; HTTPS publik belum aktif.
 
 Cakupan: aplikasi lokal milik sendiri (`localhost:8081`). Tidak ada pemindaian jaringan lain dan tidak ada pengujian destruktif; semua data uji dihapus.

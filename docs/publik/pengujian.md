@@ -1,5 +1,8 @@
 # Hasil pengujian akses publik (2026-11-10)
 
+> **Pembaruan (mode terbuka):** nama pengguna dan kata sandi untuk menambah, mengubah, dan menghapus data **sudah dicabut** atas permintaan pemilik proyek. Penulisan kini hanya dilindungi header `X-Requested-With` (CSRF), pembatasan laju 10 permintaan/detik (burst 20), batas badan 16 KB, dan validasi backend. Akibatnya siapa pun yang tahu alamat publik dapat mengubah data. Untuk mengaktifkan login lagi: di `nginx/default.conf` ganti `default off;` pada `map $request_method $auth_realm` menjadi `default "LibraryKu Dashboard";`, pastikan `nginx/auth/htpasswd` ada, lalu `./scripts/ctl.sh reload-nginx`. Bagian di bawah yang menyebut login menggambarkan keadaan sebelum perubahan ini.
+
+
 Status ditentukan oleh bukti. Pengujian lokal tidak dihitung sebagai bukti akses internet.
 
 ## A. Pengamanan aplikasi (lokal, di Kali): selesai

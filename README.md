@@ -14,7 +14,7 @@ Repositori kode: https://github.com/muhrafi-fsdev/libraryku-unified
 Pengumpulan (ketentuan dosen): file code, Dockerfile, dan laporan dikumpulkan lewat tautan GitHub ini. Laporan: `laporan/laporan.docx`.
 
 ## Menjalankan
-1. Salin `.env.example` menjadi `.env`, lalu isi semua kata sandi dengan nilai acak (berkas ini tidak pernah di-commit). Buat juga `nginx/auth/htpasswd` untuk login dashboard (lihat `docs/publik/`).
+1. Salin `.env.example` menjadi `.env`, lalu isi semua kata sandi dengan nilai acak (berkas ini tidak pernah di-commit).
 2. Jalankan `docker compose up -d --build` dari folder proyek ini. Website: http://127.0.0.1:8081
 3. Dokumentasi: `docs/unified/` (arsitektur SQL+NoSQL, pengujian, keamanan) dan `docs/publik/` (akses HTTPS publik).
 
@@ -26,7 +26,7 @@ Pengumpulan (ketentuan dosen): file code, Dockerfile, dan laporan dikumpulkan le
 
 ## Yang sudah dibuat
 
-- Website empat halaman (V3): **Beranda** (rak buku, sekilas koleksi, koleksi terbaru dari API), **Katalog** (cari judul/penulis, filter kategori, tanpa tombol pengelolaan), **Dashboard** (tambah, ubah, hapus buku lewat dialog, dengan konfirmasi hapus) dan **Tentang** (tujuan, teknologi, arsitektur, peran Docker Compose, tautan API). Membaca data terbuka; menambah, mengubah, dan menghapus data memerlukan login dashboard (Basic Auth di Nginx).
+- Website empat halaman (V3): **Beranda** (rak buku, sekilas koleksi, koleksi terbaru dari API), **Katalog** (cari judul/penulis, filter kategori, tanpa tombol pengelolaan), **Dashboard** (tambah, ubah, hapus buku lewat dialog, dengan konfirmasi hapus) dan **Tentang** (tujuan, teknologi, arsitektur, peran Docker Compose, tautan API). Membaca dan menulis data **tanpa login** (mode terbuka; dilindungi header aplikasi dan pembatasan laju). Login Basic Auth dapat diaktifkan lagi lewat `nginx/default.conf` (lihat `docs/publik/arsitektur.md`).
 - API Flask dengan output JSON (GET, POST, PUT, DELETE) dan validasi input.
 - Tiga container Docker Compose: **Nginx** (frontend + reverse proxy), **Flask** (API), **PostgreSQL** (SQL database).
 - Volume PostgreSQL agar data tetap tersimpan walaupun container dihentikan.
@@ -195,7 +195,7 @@ Sebagian besar bukti dihasilkan oleh `./scripts/uji.sh`; daftar screenshot lengk
 
 ## File laporan & presentasi
 
-Lihat `laporan/laporan.docx`, `laporan/presentasi.pptx`, dan `docs/naskah.md` yang disertakan. **Laporan dan slide memuat kotak kuning "BELUM DIISI"** untuk screenshot dan JSON aktual yang hanya bisa diambil dari aplikasi yang berjalan. Isi dengan hasil asli (bukan contoh), lalu ekspor ulang PDF laporan.
+Lihat `laporan/laporan.docx` (urutan bab mengikuti PDF penugasan; berisi screenshot website dan respons JSON dari aplikasi yang berjalan), `laporan/presentasi.pptx`, dan `docs/naskah.md`. Screenshot laporan ada di `bukti/laporan/` dan dapat dibuat ulang dengan `python3 scripts/ambil_screenshot.py`; JSON dengan `python3 scripts/ambil_json.py`; DOCX dengan `~/.venvs/libraryku-docs/bin/python scripts/buat_laporan.py`. Ekspor PDF dari Word bila diperlukan.
 
 ## Catatan kecil pada instruksi tugas
 
@@ -204,4 +204,4 @@ PDF penugasan menyatakan aplikasi berjalan secara lokal (`localhost`) dan **tida
 ## LibraryKu Unified: SQL (PostgreSQL) + NoSQL (MongoDB)
 
 Satu website, dua database terpisah, dipilih lewat pilihan **SQL / NoSQL** di Katalog dan Dashboard. Endpoint: `/api/sql/books` (PostgreSQL, alamat lama `/api/books` tetap berlaku) dan `/api/nosql/books` (MongoDB). Dokumentasi lengkap di `docs/unified/`:
-`audit.md`, `arsitektur.md`, `pengujian.md`, `keamanan.md`, `demo.md`, `screenshot.md` (di folder `docs/unified/`). Operasi Docker dijalankan lewat `./scripts/ctl.sh` (bukti di `bukti/unified/`). Tambahkan `MONGO_ROOT_PASSWORD` dan `MONGO_APP_PASSWORD` ke `.env` (lihat `.env.example`). Penulisan data wajib login dashboard (kredensial di `~/.libraryku_dashboard_credentials`, bukan di repository); port 8081 hanya di `127.0.0.1`. Akses publik HTTPS lewat Tailscale Funnel: https://libraryku-kali.tail342a2f.ts.net/ (aktif; teruji dari Kali dan dilaporkan berhasil dari Android data seluler). Panduan di `docs/publik/` dan `./scripts/funnel.sh`.
+`audit.md`, `arsitektur.md`, `pengujian.md`, `keamanan.md`, `demo.md`, `screenshot.md` (di folder `docs/unified/`). Operasi Docker dijalankan lewat `./scripts/ctl.sh` (bukti di `bukti/unified/`). Tambahkan `MONGO_ROOT_PASSWORD` dan `MONGO_APP_PASSWORD` ke `.env` (lihat `.env.example`). Penulisan data tanpa login (mode terbuka), dilindungi header aplikasi dan pembatasan laju; port 8081 hanya di `127.0.0.1`. Akses publik HTTPS lewat Tailscale Funnel: https://libraryku-kali.tail342a2f.ts.net/ (aktif; teruji dari Kali dan dilaporkan berhasil dari Android data seluler). Panduan di `docs/publik/` dan `./scripts/funnel.sh`.

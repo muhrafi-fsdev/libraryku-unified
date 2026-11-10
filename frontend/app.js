@@ -745,12 +745,12 @@ function closeFormDialog() {
   if (elements.formDialog.open) elements.formDialog.close();
 }
 
-function openNewBook(trigger) {
+async function openNewBook(trigger) {
   resetForm();
   openFormDialog(trigger);
 }
 
-function startEditing(book, trigger) {
+async function startEditing(book, trigger) {
   resetForm();
   editingId = String(book.id);
   syncCategoryOptions(book.category);
@@ -881,7 +881,7 @@ async function runDelete(book) {
   }
 }
 
-function askDelete(book) {
+async function askDelete(book) {
   if (typeof elements.dialog.showModal !== 'function') {
     if (window.confirm(`Hapus buku “${book.title}”?\nTindakan ini tidak bisa dibatalkan.`)) runDelete(book);
     return;

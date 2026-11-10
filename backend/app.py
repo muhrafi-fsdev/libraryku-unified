@@ -6,6 +6,7 @@ from contextlib import contextmanager
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from flask import Flask, jsonify, request
+from werkzeug.exceptions import HTTPException
 from validation import validate_book
 
 app = Flask(__name__)
@@ -38,6 +39,24 @@ def serialize_book(record):
 def handle_database_error(error):
     app.logger.exception("Database tidak tersedia: %s", error)
     return jsonify({"error": "Database tidak dapat diakses. Periksa container database."}), 503
+
+
+@app.errorhandler(HTTPException)
+def handle_http_error(error):
+    names = {
+        400: "Permintaan tidak valid.",
+        404: "Endpoint tidak ditemukan.",
+        405: "Metode HTTP tidak didukung untuk endpoint ini.",
+        413: "Badan permintaan terlalu besar.",
+        415: "Gunakan Content-Type application/json.",
+    }
+    return jsonify({"error": names.get(error.code, error.name)}), error.code
+
+
+@app.errorhandler(Exception)
+def handle_unexpected(error):
+    app.logger.exception("Galat tak terduga: %s", error)
+    return jsonify({"error": "Terjadi kesalahan pada server."}), 500
 
 
 @app.get("/api/health")
