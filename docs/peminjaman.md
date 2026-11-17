@@ -37,7 +37,7 @@ Memakai mekanisme login yang sudah ada: Basic Auth Nginx dengan berkas `nginx/au
 ## Menerapkan ke instalasi yang sudah berjalan (urutan)
 1. `./scripts/migrasi.sh` (menambah tabel `loans`; data buku tidak berubah).
 2. `sudo docker compose up -d --build backend` (API peminjaman aktif).
-3. `./scripts/ctl.sh reload-nginx` dan segarkan browser dengan Ctrl+Shift+R.
+3. `./scripts/ctl.sh reload-nginx` dan segarkan browser dengan Ctrl+Shift+R. Skrip ini juga membandingkan konfigurasi Nginx yang berjalan dengan berkas di disk dan membuat ulang container frontend bila berbeda. Itu penting setelah `git merge` atau `git pull`: `default.conf` diganti sebagai berkas baru, container bisa masih memegang berkas lama, dan endpoint peminjaman terbuka tanpa login sampai itu diperbaiki.
 
 Sebelum langkah 1, halaman Peminjaman menampilkan pesan bahwa tabel belum dibuat, dan hapus buku tetap berfungsi seperti biasa.
 

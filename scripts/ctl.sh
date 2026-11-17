@@ -159,6 +159,17 @@ reload-nginx)
   $SUDO docker run --rm --network none -v "$PWD/nginx/default.conf":/etc/nginx/conf.d/default.conf:ro -v "$PWD/nginx/auth":/etc/nginx/auth:ro nginx:1.28-alpine nginx -t
   $DC exec -T frontend nginx -t
   $DC exec -T frontend nginx -s reload && say "[OK] Nginx dimuat ulang"
+  # Bind mount satu-berkas tetap menunjuk ke berkas LAMA bila default.conf diganti sebagai berkas baru (git merge/pull),
+  # sehingga reload memuat konfigurasi lama. Bandingkan isi yang berjalan dengan berkas di disk; bila beda, buat ulang
+  # hanya container frontend (database dan backend tidak disentuh).
+  RUN_SUM="$($DC exec -T frontend cat /etc/nginx/conf.d/default.conf | sha256sum | cut -d' ' -f1)"
+  FILE_SUM="$(sha256sum nginx/default.conf | cut -d' ' -f1)"
+  if [ "$RUN_SUM" != "$FILE_SUM" ]; then
+    say "[PERINGATAN] Nginx masih memakai konfigurasi LAMA (berkas pada disk diganti git). Membuat ulang container frontend saja..."
+    $DC up -d --force-recreate --no-deps frontend
+    sleep 4
+  fi
+  say "[OK] konfigurasi Nginx yang berjalan sama dengan nginx/default.conf"
   sleep 2
   http "SQL health" /api/sql/health; http "NoSQL health" /api/nosql/health ;;
 apply-frontend)
