@@ -24,10 +24,11 @@ UJI_USER=petugas_uji
 UJI_PASS="$(rnd)"
 { echo "POSTGRES_PASSWORD=$(rnd)"; echo "MONGO_ROOT_PASSWORD=$(rnd)"; echo "MONGO_APP_PASSWORD=$(rnd)"; } > "$ENVF"; chmod 600 "$ENVF"
 printf '%s:%s\n' "$UJI_USER" "$(openssl passwd -apr1 "$UJI_PASS")" > "$AUTHDIR/htpasswd"; chmod 644 "$AUTHDIR/htpasswd"
-export UJI_USER UJI_PASS UJI_AUTH_DIR="$AUTHDIR"
+UJI_CONF="$PWD/nginx/default.conf"   # konfigurasi Nginx yang diuji (mode terbuka, bawaan repositori)
+export UJI_USER UJI_PASS UJI_AUTH_DIR="$AUTHDIR" UJI_CONF
 
-# sudo membuang variabel lingkungan, jadi UJI_AUTH_DIR diteruskan eksplisit lewat "env".
-dc() { sudo env UJI_AUTH_DIR="$UJI_AUTH_DIR" docker compose -p "$P" --env-file "$ENVF" -f compose.yaml -f scripts/uji-peminjaman.compose.yaml "$@"; }
+# sudo membuang variabel lingkungan, jadi UJI_AUTH_DIR dan UJI_CONF diteruskan eksplisit lewat "env".
+dc() { sudo env UJI_AUTH_DIR="$UJI_AUTH_DIR" UJI_CONF="$UJI_CONF" docker compose -p "$P" --env-file "$ENVF" -f compose.yaml -f scripts/uji-peminjaman.compose.yaml "$@"; }
 psqlc() { dc exec -T database psql -v ON_ERROR_STOP=1 -U libraryku_user -d libraryku "$@"; }
 hash_books() { psqlc -Atc "SELECT count(*) || ':' || coalesce(md5(string_agg(t::text, ',' ORDER BY id)), '') FROM books t"; }
 waitup() { for _ in $(seq 1 60); do curl -sf -m 3 "$BASE/api/sql/health" >/dev/null 2>&1 && return 0; sleep 2; done; echo "Stack uji tidak merespons." >&2; return 1; }
@@ -78,8 +79,8 @@ H2="$(hash_books)"; echo "tabel books sesudah migrasi : $H2"
 TBL="$(psqlc -Atc "SELECT to_regclass('public.loans')")"
 if [ "$H1" = "$H2" ] && [ "$TBL" = "loans" ]; then echo "PASS migrasi: data buku identik (jumlah dan isi) dan tabel loans ada"; else echo "FAIL migrasi: H1=$H1 H2=$H2 tabel=$TBL"; FAILS=$((FAILS + 1)); fi
 
-echo; echo "=== 4. Akses petugas dan fungsi peminjaman ==="
-run python3 scripts/test_peminjaman.py "$BASE" akses
+echo; echo "=== 4. MODE TERBUKA (bawaan): peminjaman tanpa login dan fungsi lengkapnya ==="
+run python3 scripts/test_peminjaman.py "$BASE" terbuka
 sleep 3
 run python3 scripts/test_peminjaman.py "$BASE" fungsional
 
@@ -96,10 +97,18 @@ echo "UI katalog (regresi): ${UI_OK:-0} PASS, ${UI_NO:-0} FAIL"
 [ "${UI_NO:-0}" = "0" ] && [ "${UI_OK:-0}" != "0" ] || { FAILS=$((FAILS + 1)); echo "[GAGAL] regresi UI katalog"; }
 grep '^FAIL' "$TMP/ui_lama.txt" 2>/dev/null || true
 
-echo; echo "=== 7. Gagal tertutup: berkas login petugas tidak ada ==="
-UJI_AUTH_DIR="$EMPTYDIR" dc up -d --force-recreate frontend
+echo; echo "=== 7. MODE LOGIN PETUGAS diaktifkan (satu baris LOANS_AUTH diubah): semua endpoint terkunci ==="
+LOGIN_CONF="$TMP/default-login.conf"
+sed 's/default off;  # LOANS_AUTH/default "LibraryKu Petugas";  # LOANS_AUTH/' nginx/default.conf > "$LOGIN_CONF"; chmod 644 "$LOGIN_CONF"
+[ "$(diff nginx/default.conf "$LOGIN_CONF" | grep -c '^>')" = "1" ] || { echo "BERHENTI: konfigurasi login tidak terbentuk tepat satu baris berbeda." >&2; exit 2; }
+UJI_CONF="$LOGIN_CONF" dc up -d --force-recreate --no-deps frontend
 waitup || true
-run python3 scripts/test_peminjaman.py "$BASE" failclosed
+sleep 4; run python3 scripts/test_peminjaman.py "$BASE" akses
+
+echo; echo "=== 8. Gagal tertutup: login aktif tetapi berkas login petugas tidak ada ==="
+UJI_CONF="$LOGIN_CONF" UJI_AUTH_DIR="$EMPTYDIR" dc up -d --force-recreate --no-deps frontend
+waitup || true
+sleep 4; run python3 scripts/test_peminjaman.py "$BASE" failclosed
 
 echo; echo "=== RINGKASAN: $FAILS tahap gagal ==="
 [ "$FAILS" -eq 0 ] && echo "SEMUA TAHAP LULUS" || echo "ADA TAHAP GAGAL (lihat baris FAIL di atas)"

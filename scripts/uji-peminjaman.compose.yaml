@@ -6,7 +6,7 @@ services:
       - "127.0.0.1:55081:80"
     volumes: !override
       - ./frontend:/usr/share/nginx/html:ro
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${UJI_CONF:?UJI_CONF wajib diisi}:/etc/nginx/conf.d/default.conf:ro
       - ${UJI_AUTH_DIR:?UJI_AUTH_DIR wajib diisi}:/etc/nginx/auth:ro
   database:
     # Tanpa mount migrasi: tabel loans sengaja belum ada supaya migrasi diuji pada database yang sudah berisi buku.

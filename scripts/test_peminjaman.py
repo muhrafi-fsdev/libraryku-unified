@@ -1,7 +1,7 @@
 """Uji fitur Peminjaman dan Pengembalian pada STACK SEMENTARA (jangan diarahkan ke database aktif).
 
 Pemakaian: python3 scripts/test_peminjaman.py BASE_URL TAHAP
-TAHAP: sebelum | akses | fungsional | failclosed
+TAHAP: sebelum | terbuka | fungsional (mode terbuka, bawaan)  |  akses | failclosed (mode login petugas diaktifkan)
 Kredensial uji fiktif dibaca dari variabel lingkungan UJI_USER dan UJI_PASS (dibuat oleh scripts/uji_peminjaman.sh).
 Semua data di sini fiktif. Skrip ini tidak mencetak kata sandi."""
 import base64, json, os, sys, threading, time, urllib.error, urllib.request
@@ -94,8 +94,24 @@ if TAHAP == "sebelum":
     s, d, _ = call("GET", "/api/sql/books", auth=None)
     check("daftar buku katalog tetap 200", s == 200 and d["total"] >= 1, f"{d['total']} buku")
 
+elif TAHAP == "terbuka":
+    print("== Mode terbuka: Peminjaman tanpa login (tetap dilindungi header aplikasi, laju, dan validasi) ==")
+    a = mkbook("[UJI-PINJAM] terbuka", 1)
+    for p in ("/api/sql/loans", "/api/loans"):
+        pause(); s, d, _ = call("GET", p, auth=None); check(f"GET {p} tanpa login -> 200", s == 200 and "data" in d, f"HTTP {s}")
+    pause(); s, d, _ = call("POST", "/api/sql/loans", loan_body(a), auth=None)
+    lid = d["data"]["id"] if s == 201 else None
+    check("POST pinjam tanpa login -> 201", s == 201, f"HTTP {s}")
+    check("stok berkurang (1 -> 0)", stock_of(a) == 0, f"stok {stock_of(a)}")
+    pause(); s, d, _ = call("POST", f"/api/sql/loans/{lid}/return", auth=None); check("kembalikan tanpa login -> 200", s == 200, f"HTTP {s}")
+    check("stok kembali (0 -> 1)", stock_of(a) == 1, f"stok {stock_of(a)}")
+    pause(); s, d, _ = call("POST", "/api/loans", {}, auth=None); check("jalur langsung /api/loans terjangkau tanpa login (data kosong -> 400 validasi)", s == 400, f"HTTP {s}")
+    pause(); s, d, _ = call("POST", "/api/sql/loans", loan_body(a), auth=None, xrw=False); check("tulis tanpa header aplikasi tetap 403", s == 403, f"HTTP {s}")
+    pause(); s, d, _ = call("POST", f"/api/sql/loans/{lid}/return", xrw=False, auth=None); check("kembalikan tanpa header aplikasi tetap 403", s == 403, f"HTTP {s}")
+    s, d, _ = call("DELETE", f"/api/sql/books/{a}", auth=None); check("bersihkan buku uji -> 200", s == 200, f"HTTP {s}")
+
 elif TAHAP == "akses":
-    print("== Akses petugas: semua endpoint peminjaman terkunci tanpa login ==")
+    print("== Mode login petugas diaktifkan: semua endpoint peminjaman terkunci tanpa login ==")
     for m, p, b in (("GET", "/api/sql/loans", None), ("GET", "/api/loans", None), ("POST", "/api/sql/loans", loan_body(1)),
                     ("POST", "/api/loans", loan_body(1)), ("POST", "/api/sql/loans/1/return", {}), ("POST", "/api/loans/1/return", {})):
         pause(); s, d, h = call(m, p, b, auth=None)

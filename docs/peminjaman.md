@@ -1,6 +1,6 @@
 # Fitur Peminjaman dan Pengembalian Buku
 
-Khusus mode SQL (PostgreSQL). Menu **Peminjaman** hanya muncul di mode SQL dan halamannya hanya bisa dipakai petugas.
+Khusus mode SQL (PostgreSQL). Menu **Peminjaman** hanya muncul di mode SQL. Saat ini halaman ini **tanpa login** (mode terbuka, keputusan pemilik proyek); login petugas bisa dinyalakan lagi dengan satu baris (lihat "Akses petugas").
 
 ## Cara kerja singkat
 - Satu transaksi meminjam satu eksemplar. Saat dipinjam, stok buku berkurang satu; saat dikembalikan, stok bertambah satu. Keduanya terjadi dalam satu transaksi database bersama pencatatannya.
@@ -14,13 +14,13 @@ Khusus mode SQL (PostgreSQL). Menu **Peminjaman** hanya muncul di mode SQL dan h
 |---|---|
 | `database/migrations/002_peminjaman.sql` | Tabel `loans` (aman diulang, tidak menyentuh `books`) |
 | `backend/app.py`, `backend/validation.py` | Endpoint peminjaman, validasi, pengecekan saat hapus buku |
-| `nginx/default.conf` | Penjagaan login petugas untuk `/api/sql/loans` dan `/api/loans` |
+| `nginx/default.conf` | Penjagaan peminjaman (`map $loans_auth`): terbuka sekarang, login petugas bisa dinyalakan lagi |
 | `compose.yaml` | Migrasi ikut dijalankan hanya pada volume database BARU |
 | `frontend/index.html`, `frontend/app.js`, `frontend/style.css` | Menu dan halaman Peminjaman |
 | `scripts/migrasi.sh` | Menerapkan migrasi ke database yang sedang berjalan |
 | `scripts/uji_peminjaman.sh` dan skrip `test_peminjaman.py`, `run_ui_peminjaman.py` | Uji pada stack sementara |
 
-## Endpoint (lewat Nginx; semua wajib login petugas, termasuk GET)
+## Endpoint (lewat Nginx)
 | Metode | Alamat | Fungsi |
 |---|---|---|
 | GET | `/api/sql/loans` | Riwayat peminjaman (terbaru di atas) |
@@ -30,9 +30,14 @@ Khusus mode SQL (PostgreSQL). Menu **Peminjaman** hanya muncul di mode SQL dan h
 Status penting: 201 dibuat, 400 data tidak valid, 401 belum login, 403 tanpa header `X-Requested-With`, 404 buku atau pinjaman tidak ada, 409 stok habis atau sudah dikembalikan, 503 tabel belum dimigrasi atau login petugas belum dikonfigurasi. Hapus buku yang masih dipinjam: `DELETE /api/sql/books/{id}` memberi 409.
 
 ## Akses petugas
-Memakai mekanisme login yang sudah ada: Basic Auth Nginx dengan berkas `nginx/auth/htpasswd` (tidak masuk repositori, tanpa kredensial di kode). Browser meminta nama pengguna dan kata sandi saat halaman Peminjaman dibuka. Dashboard, Katalog, dan API katalog tetap publik.
-- **Gagal tertutup:** bila `nginx/auth/htpasswd` tidak ada atau tidak terbaca, endpoint peminjaman membalas 503 dan permintaan tidak pernah sampai ke backend.
-- Membuat akun petugas: `mkdir -p nginx/auth && printf 'petugas:%s\n' "$(openssl passwd -apr1 'KATA_SANDI_BARU')" > nginx/auth/htpasswd` lalu `./scripts/ctl.sh reload-nginx`.
+**Mode sekarang: terbuka, tanpa login.** Siapa pun yang membuka alamat publik dapat melihat nama, kelas, dan NIM peminjam serta mencatat dan mengembalikan buku, jadi isi dengan data fiktif. Yang tetap berlaku: header `X-Requested-With` (tanpanya 403), pembatasan laju, batas ukuran data, dan validasi backend. Halaman menampilkan peringatan kuning tentang hal ini.
+
+**Menyalakan login petugas lagi** (Basic Auth Nginx memakai `nginx/auth/htpasswd`, tanpa kredensial di kode):
+1. Di `nginx/default.conf`, pada baris bertanda `LOANS_AUTH`, ganti `default off;` menjadi `default "LibraryKu Petugas";`.
+2. Pastikan `nginx/auth/htpasswd` ada. Membuat akun: `mkdir -p nginx/auth && printf 'petugas:%s\n' "$(openssl passwd -apr1 'KATA_SANDI_BARU')" > nginx/auth/htpasswd`.
+3. `./scripts/ctl.sh reload-nginx`.
+
+Dengan login aktif, SEMUA metode termasuk GET wajib login (401 tanpa login). Gagal tertutup: bila berkas htpasswd hilang, endpoint peminjaman membalas 503 dan tidak ada data keluar. Kedua perilaku diuji (`scripts/uji_peminjaman.sh`, tahap 7 dan 8). Dashboard, Katalog, dan API katalog tidak terpengaruh.
 
 ## Menerapkan ke instalasi yang sudah berjalan (urutan)
 1. `./scripts/migrasi.sh` (menambah tabel `loans`; data buku tidak berubah).

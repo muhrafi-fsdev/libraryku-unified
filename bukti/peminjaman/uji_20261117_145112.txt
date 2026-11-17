@@ -1,0 +1,501 @@
+=== UJI PEMINJAMAN pada stack sementara 'libraryku-uji' | 2026-11-17 14:51:12 WIB ===
+[OK] target proyek 'libraryku-uji', port dipublikasikan: ['55081'] (proyek asli dan port 8081 tidak disentuh)
+
+=== 1. Membangun dan menjalankan stack uji (build backend dari kode terbaru) ===
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.10kB done
+#1 DONE 0.0s
+
+#2 [backend internal] load build definition from Dockerfile
+#2 transferring dockerfile: 348B done
+#2 DONE 0.0s
+
+#3 [backend-nosql internal] load build definition from Dockerfile
+#3 transferring dockerfile: 617B done
+#3 DONE 0.0s
+
+#4 [backend-nosql internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 1.9s
+
+#5 [backend-nosql internal] load .dockerignore
+#5 transferring context: 59B done
+#5 DONE 0.0s
+
+#6 [backend internal] load .dockerignore
+#6 transferring context: 68B done
+#6 DONE 0.0s
+
+#7 [backend 1/6] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b
+#7 DONE 0.0s
+
+#8 [backend-nosql internal] load build context
+#8 transferring context: 7.57kB done
+#8 DONE 0.0s
+
+#9 [backend internal] load build context
+#9 transferring context: 158B done
+#9 DONE 0.0s
+
+#10 [backend 3/5] COPY requirements.txt ./
+#10 CACHED
+
+#11 [backend 4/5] RUN pip install --no-cache-dir -r requirements.txt
+#11 CACHED
+
+#12 [backend 2/5] WORKDIR /app
+#12 CACHED
+
+#13 [backend 5/5] COPY . ./
+#13 CACHED
+
+#14 [backend-nosql 5/6] RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r requirements.txt
+#14 CACHED
+
+#15 [backend-nosql 2/6] RUN useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin appuser
+#15 CACHED
+
+#16 [backend-nosql 3/6] WORKDIR /app
+#16 CACHED
+
+#17 [backend-nosql 4/6] COPY requirements.txt ./
+#17 CACHED
+
+#18 [backend-nosql 6/6] COPY --chown=appuser:appuser . ./
+#18 CACHED
+
+#19 [backend-nosql] exporting to image
+#19 exporting layers done
+#19 writing image sha256:7ddbf3e5ad50c914c1213b4c8e0d88141c2ab64f02bc0c0e81d57104619f31d2 done
+#19 naming to docker.io/library/libraryku-uji-backend-nosql done
+#19 DONE 0.0s
+
+#20 [backend] exporting to image
+#20 exporting layers done
+#20 writing image sha256:1238d47a4c1763ab12b734155d45b90834075f33b4c88b3fbb750bf00a80ad47 done
+#20 naming to docker.io/library/libraryku-uji-backend 0.0s done
+#20 DONE 0.0s
+
+#21 [backend-nosql] resolving provenance for metadata file
+#21 DONE 0.0s
+
+#22 [backend] resolving provenance for metadata file
+#22 DONE 0.0s
+ libraryku-uji-backend  Built
+ libraryku-uji-backend-nosql  Built
+ Network libraryku-uji_app_network  Creating
+ Network libraryku-uji_app_network  Created
+ Network libraryku-uji_nosql_network  Creating
+ Network libraryku-uji_nosql_network  Created
+ Volume libraryku-uji_postgres_data  Creating
+ Volume libraryku-uji_postgres_data  Created
+ Volume libraryku-uji_mongo_data  Creating
+ Volume libraryku-uji_mongo_data  Created
+ Container libraryku-uji-database-1  Creating
+ Container libraryku-uji-mongodb-1  Creating
+ Container libraryku-uji-database-1  Created
+ Container libraryku-uji-backend-1  Creating
+ Container libraryku-uji-mongodb-1  Created
+ Container libraryku-uji-backend-nosql-1  Creating
+ Container libraryku-uji-backend-nosql-1  Created
+ Container libraryku-uji-backend-1  Created
+ Container libraryku-uji-frontend-1  Creating
+ Container libraryku-uji-frontend-1  Created
+ Container libraryku-uji-database-1  Starting
+ Container libraryku-uji-mongodb-1  Starting
+ Container libraryku-uji-mongodb-1  Started
+ Container libraryku-uji-mongodb-1  Waiting
+ Container libraryku-uji-database-1  Started
+ Container libraryku-uji-database-1  Waiting
+ Container libraryku-uji-mongodb-1  Healthy
+ Container libraryku-uji-backend-nosql-1  Starting
+ Container libraryku-uji-database-1  Healthy
+ Container libraryku-uji-backend-1  Starting
+ Container libraryku-uji-backend-1  Started
+ Container libraryku-uji-backend-1  Waiting
+ Container libraryku-uji-backend-nosql-1  Started
+ Container libraryku-uji-backend-1  Healthy
+ Container libraryku-uji-frontend-1  Starting
+ Container libraryku-uji-frontend-1  Started
+ Container libraryku-uji-mongodb-1  Waiting
+ Container libraryku-uji-backend-nosql-1  Waiting
+ Container libraryku-uji-database-1  Waiting
+ Container libraryku-uji-backend-1  Waiting
+ Container libraryku-uji-frontend-1  Waiting
+ Container libraryku-uji-database-1  Healthy
+ Container libraryku-uji-backend-nosql-1  Healthy
+ Container libraryku-uji-mongodb-1  Healthy
+ Container libraryku-uji-frontend-1  Healthy
+ Container libraryku-uji-backend-1  Healthy
+[OK] stack uji berjalan di http://127.0.0.1:55081
+
+=== 2. Database yang sudah berisi buku, SEBELUM migrasi ===
+INSERT 0 3
+
+>>> python3 scripts/test_peminjaman.py http://127.0.0.1:55081 sebelum
+== Sebelum migrasi: katalog tetap normal, fitur peminjaman memberi pesan jelas ==
+PASS GET loans sebelum migrasi -> 503 JSON yang menyebut migrasi | HTTP 503
+PASS hapus buku (tanpa tabel loans) tetap 200 | HTTP 200
+PASS daftar buku katalog tetap 200 | 3 buku
+
+RINGKASAN sebelum: 3 PASS, 0 FAIL dari 3
+
+=== 3. Migrasi pada database berisi data ===
+tabel books sebelum migrasi : 3:5777a6bfd92503571c25a175f11315b1
+CREATE TABLE
+CREATE INDEX
+--- migrasi kedua kali (harus aman) ---
+psql:<stdin>:22: NOTICE:  relation "loans" already exists, skipping
+CREATE TABLE
+CREATE INDEX
+psql:<stdin>:25: NOTICE:  relation "loans_active_book_idx" already exists, skipping
+tabel books sesudah migrasi : 3:5777a6bfd92503571c25a175f11315b1
+PASS migrasi: data buku identik (jumlah dan isi) dan tabel loans ada
+
+=== 4. MODE TERBUKA (bawaan): peminjaman tanpa login dan fungsi lengkapnya ===
+
+>>> python3 scripts/test_peminjaman.py http://127.0.0.1:55081 terbuka
+== Mode terbuka: Peminjaman tanpa login (tetap dilindungi header aplikasi, laju, dan validasi) ==
+PASS GET /api/sql/loans tanpa login -> 200 | HTTP 200
+PASS GET /api/loans tanpa login -> 200 | HTTP 200
+PASS POST pinjam tanpa login -> 201 | HTTP 201
+PASS stok berkurang (1 -> 0) | stok 0
+PASS kembalikan tanpa login -> 200 | HTTP 200
+PASS stok kembali (0 -> 1) | stok 1
+PASS jalur langsung /api/loans terjangkau tanpa login (data kosong -> 400 validasi) | HTTP 400
+PASS tulis tanpa header aplikasi tetap 403 | HTTP 403
+PASS kembalikan tanpa header aplikasi tetap 403 | HTTP 403
+PASS bersihkan buku uji -> 200 | HTTP 200
+
+RINGKASAN terbuka: 10 PASS, 0 FAIL dari 10
+
+>>> python3 scripts/test_peminjaman.py http://127.0.0.1:55081 fungsional
+== Pinjam, stok, dan riwayat ==
+PASS pinjam buku -> 201 | HTTP 201
+PASS status Dipinjam, tanggal aktual kosong
+PASS NIM tersimpan sebagai teks dengan nol di depan | 0012345678
+PASS judul buku dicatat di riwayat
+PASS stok berkurang satu (2 -> 1) | stok 1
+PASS riwayat memuat pinjaman itu
+== Validasi dan penolakan ==
+PASS batas sebelum tanggal pinjam -> 400 dengan galat pada due_date | HTTP 400
+PASS tanggal 2026-02-30 -> 400 dengan galat pada loan_date | HTTP 400
+PASS NIM bukan teks (angka JSON) -> 400 dengan galat pada borrower_nim | HTTP 400
+PASS NIM berisi huruf -> 400 dengan galat pada borrower_nim | HTTP 400
+PASS nama kosong -> 400 dengan galat pada borrower_name | HTTP 400
+PASS book_id berupa teks -> 400 dengan galat pada book_id | HTTP 400
+PASS batas pengembalian kosong -> 400 dengan galat pada due_date | HTTP 400
+PASS buku tidak ditemukan -> 404 | HTTP 404
+PASS JSON rusak -> 400 | HTTP 400
+PASS validasi yang ditolak tidak mengubah stok (tetap 1) | stok 1
+PASS stok habis -> 409 | HTTP 409
+PASS pinjaman ditolak tidak tercatat
+== Hapus buku yang masih dipinjam ==
+PASS hapus buku yang masih dipinjam -> 409 | HTTP 409
+PASS buku masih ada dan stok tidak berubah
+== Pengembalian ==
+PASS kembalikan -> 200 | HTTP 200
+PASS tanggal aktual terisi otomatis dengan hari ini (WIB), status Dikembalikan | 2026-11-17
+PASS stok bertambah satu (1 -> 2) | stok 2
+PASS pengembalian kedua -> 409 | HTTP 409
+PASS pengembalian kedua tidak menambah stok (tetap 2) | stok 2
+PASS kembalikan id yang tidak ada -> 404 | HTTP 404
+PASS setelah dikembalikan, buku bisa dihapus -> 200 | HTTP 200
+PASS riwayat tetap ada dengan judul, book_id menjadi null
+== Tanggal pinjam di masa depan ==
+PASS kembalikan sebelum tanggal pinjam: tanggal aktual tidak lebih awal dari tanggal pinjam | 2026-11-20
+== Balapan: eksemplar terakhir ==
+PASS 8 permintaan bersamaan untuk 1 eksemplar: tepat satu berhasil (201) | [201, 409, 409, 409, 409, 409, 409, 409]
+PASS sisanya ditolak 409 (bukan galat server) | [201, 409, 409, 409, 409, 409, 409, 409]
+PASS stok akhir 0, tidak negatif | stok 0
+PASS hanya satu pinjaman aktif untuk buku itu | 1 aktif
+== Balapan: pengembalian ganda ==
+PASS 6 pengembalian bersamaan: tepat satu 200, sisanya 409 | [200, 409, 409, 409, 409, 409]
+PASS stok hanya bertambah satu kali (0 -> 1) | stok 1
+== Balapan: pinjam saat buku dihapus ==
+PASS pinjam dan hapus bersamaan selalu konsisten (201+409 atau 404+200) | 0 kontradiksi dari 5
+PASS tidak ada pinjaman aktif yang bukunya sudah terhapus | 0 yatim
+
+RINGKASAN fungsional: 37 PASS, 0 FAIL dari 37
+
+=== 5. Regresi CRUD katalog SQL dan NoSQL, keamanan, dan akses ===
+
+>>> python3 scripts/test_api.py http://127.0.0.1:55081
+
+===== Kompatibilitas alamat lama =====
+PASS /api/health lama tetap 200 | HTTP 200
+PASS /api/books lama = isi /api/sql/books (PostgreSQL) | total lama=8 baru=8
+
+===== SQL (PostgreSQL) =====
+PASS sql health 200 dan connected | {"database":"connected","service":"libraryku-api","status":"ok"}
+PASS sql list 200 berformat {data,total} | total=8
+PASS sql CREATE 201 | HTTP 201 {"data":{"author":"Penguji","category":"Umum","id":15,"stock":5,"title":"[UJI-UNIFIED] Buku Uji","year":2024},"message":"Buku berhasil ditambahkan."}
+PASS sql id bertipe integer | 15
+PASS sql bentuk JSON data konsisten (field) | ['author', 'category', 'id', 'stock', 'title', 'year']
+PASS sql READ satu buku 200 | HTTP 200
+PASS sql READ daftar memuat buku uji di urutan teratas | total 8 -> 9
+PASS sql tidak mengubah database nosql (jumlah sama, buku uji tidak muncul) | nosql: 0 -> 0
+PASS sql UPDATE 200 | HTTP 200 {"data":{"author":"Penguji","category":"Umum","id":15,"stock":42,"title":"[UJI-UNIFIED] Buku Uji Diubah","year":2023},"m
+PASS sql UPDATE tersimpan (GET ulang) | {"author": "Penguji", "category": "Umum", "id": 15, "stock": 42, "title": "[UJI-UNIFIED] Buku Uji Diubah", "year": 2023}
+PASS sql POST judul kosong -> 400 | HTTP 400
+PASS sql POST stok negatif -> 400 | HTTP 400
+PASS sql POST tahun di luar batas -> 400 | HTTP 400
+PASS sql POST tipe salah (year string, stock boolean) -> 400 | HTTP 400
+PASS sql POST judul terlalu panjang -> 400 | HTTP 400
+PASS sql POST bukan JSON -> 400 | HTTP 400
+PASS sql POST tanpa badan -> 400 | HTTP 400
+PASS sql PUT data tidak valid -> 400 dan data lama utuh | HTTP 400
+PASS sql DELETE 200 | HTTP 200 {"id":15,"message":"Buku berhasil dihapus."}
+PASS sql GET setelah DELETE -> 404 | HTTP 404
+PASS sql DELETE ulang -> 404 | HTTP 404
+PASS sql data kembali seperti semula | total 8
+
+===== NOSQL (MongoDB) =====
+PASS nosql health 200 dan connected | {"database":"connected","engine":"mongodb","service":"libraryku-nosql-api","status":"ok"}
+PASS nosql list 200 berformat {data,total} | total=0
+PASS nosql CREATE 201 | HTTP 201 {"data":{"author":"Penguji","category":"Umum","id":"6afc07a402aaffc5ea6b314c","stock":5,"title":"[UJI-UNIFIED] Buku Uji","year":2024},"message":"Buku 
+PASS nosql id string 24 heksadesimal | '6afc07a402aaffc5ea6b314c'
+PASS nosql bentuk JSON data konsisten (field) | ['author', 'category', 'id', 'stock', 'title', 'year']
+PASS nosql READ satu buku 200 | HTTP 200
+PASS nosql READ daftar memuat buku uji di urutan teratas | total 0 -> 1
+PASS nosql tidak mengubah database sql (jumlah sama, buku uji tidak muncul) | sql: 8 -> 8
+PASS nosql UPDATE 200 | HTTP 200 {"data":{"author":"Penguji","category":"Umum","id":"6afc07a402aaffc5ea6b314c","stock":42,"title":"[UJI-UNIFIED] Buku Uji
+PASS nosql UPDATE tersimpan (GET ulang) | {"author": "Penguji", "category": "Umum", "id": "6afc07a402aaffc5ea6b314c", "stock": 42, "title": "[UJI-UNIFIED] Buku Uji Diubah", "year": 2023}
+PASS nosql POST judul kosong -> 400 | HTTP 400
+PASS nosql POST stok negatif -> 400 | HTTP 400
+PASS nosql POST tahun di luar batas -> 400 | HTTP 400
+PASS nosql POST tipe salah (year string, stock boolean) -> 400 | HTTP 400
+PASS nosql POST judul terlalu panjang -> 400 | HTTP 400
+PASS nosql POST bukan JSON -> 400 | HTTP 400
+PASS nosql POST tanpa badan -> 400 | HTTP 400
+PASS nosql PUT data tidak valid -> 400 dan data lama utuh | HTTP 400
+PASS nosql DELETE 200 | HTTP 200 {"id":"6afc07a402aaffc5ea6b314c","message":"Buku berhasil dihapus."}
+PASS nosql GET setelah DELETE -> 404 | HTTP 404
+PASS nosql DELETE ulang -> 404 | HTTP 404
+PASS nosql data kembali seperti semula | total 0
+
+===== NOSQL: ID, injeksi, galat =====
+PASS nosql GET id tidak valid 'abc' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid 'abc' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid 'abc' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '123' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '123' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '123' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '507f1f77bcf86cd79943901z' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '507f1f77bcf86cd79943901z' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '507f1f77bcf86cd79943901z' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '507f1f77bcf86cd7994390111' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '507f1f77bcf86cd7994390111' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '507f1f77bcf86cd7994390111' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '%24ne' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '%24ne' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '%24ne' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '%7B%22%24ne%22%3A1%7D' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '%7B%22%24ne%22%3A1%7D' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '%7B%22%24ne%22%3A1%7D' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET id tidak valid '507f1f77bcf86cd799439011%0A' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql PUT id tidak valid '507f1f77bcf86cd799439011%0A' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql DELETE id tidak valid '507f1f77bcf86cd799439011%0A' -> 400 JSON (tanpa query ke DB) | HTTP 400
+PASS nosql GET ObjectId valid tetapi tidak ada -> 404 | HTTP 404
+PASS nosql PUT ObjectId valid tetapi tidak ada -> 404 | HTTP 404
+PASS nosql DELETE ObjectId valid tetapi tidak ada -> 404 | HTTP 404
+PASS nosql injeksi $ne pada title -> 400 | HTTP 400
+PASS nosql injeksi $gt pada stock -> 400 | HTTP 400
+PASS nosql injeksi $where di kolom teks -> 400 | HTTP 400
+PASS nosql injeksi array pada category -> 400 | HTTP 400
+PASS nosql kolom asing diabaikan (_id dari klien tidak dipakai, field asing tidak tersimpan) | {"author": "Penguji", "category": "Umum", "id": "6afc07b902aaffc5ea6b314d", "stock": 5, "title": "[UJI-UNIFIED] Buku Uji", "year": 2024}
+PASS nosql metode tidak didukung -> 405 JSON | HTTP 405 {"error":"Metode HTTP tidak didukung untuk endpoint ini."}
+PASS nosql rute tidak ada -> 404 JSON | HTTP 404
+PASS nosql badan terlalu besar (40 KB) -> ditolak (413) | HTTP 413
+PASS nosql Content-Type bukan JSON -> 400 | HTTP 400
+
+===== Kebocoran informasi =====
+PASS badan respons tidak memuat kredensial, URI, nama pengguna DB, atau jejak tumpukan | []
+PASS header Server tidak membuka versi Nginx | nginx
+PASS header X-Content-Type-Options ada | nosniff
+PASS header X-Frame-Options ada | DENY
+PASS header Content-Security-Policy ada | default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; c
+PASS header Referrer-Policy ada | no-referrer
+PASS tidak ada header CORS terbuka (Access-Control-Allow-Origin) | None
+PASS permintaan lintas-origin tidak mendapat izin CORS | None
+
+RINGKASAN: 87 PASS, 0 FAIL dari 87 pemeriksaan
+
+>>> python3 scripts/test_keamanan.py http://127.0.0.1:55081
+== SQL injection (PostgreSQL) ==
+PASS payload 'akhiri query + DROP' tersimpan sebagai teks biasa (query berparameter) | HTTP 201
+PASS payload 'OR selalu benar' tersimpan sebagai teks biasa (query berparameter) | HTTP 201
+PASS payload 'UNION' tersimpan sebagai teks biasa (query berparameter) | HTTP 201
+PASS tabel books masih utuh dan jumlah bertambah tepat 3
+PASS SQL id '1%20OR%201=1' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+PASS SQL id '1;DROP%20TABLE%20books' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+PASS SQL id '-1' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+PASS SQL id '1.5' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+PASS SQL id 'abc' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+PASS SQL id '99999999999999999999' tidak mengembalikan data dan tidak galat 500 | HTTP 404
+== NoSQL injection (MongoDB) ==
+PASS parameter query berisi operator diabaikan (tidak ada filter dari pengguna, tidak galat) | HTTP 200
+PASS nilai 'JS di string' hanya tersimpan sebagai string biasa | HTTP 201
+PASS nilai 'operator sebagai teks' hanya tersimpan sebagai string biasa | HTTP 201
+PASS nilai '$where sebagai teks' hanya tersimpan sebagai string biasa | HTTP 201
+== XSS tersimpan: API mengirim teks, bukan HTML ==
+PASS sql: Content-Type application/json + nosniff | application/json
+PASS nosql: Content-Type application/json + nosniff | application/json
+== CSRF dan CORS ==
+PASS sql: POST lintas-situs ala form (text/plain) ditolak | HTTP 400
+PASS sql: preflight CORS tidak memberi izin | None
+PASS nosql: POST lintas-situs ala form (text/plain) ditolak | HTTP 400
+PASS nosql: preflight CORS tidak memberi izin | None
+== Metode dan header ==
+PASS metode TRACE tidak diterima | HTTP 405
+PASS metode CONNECT tidak diterima | HTTP 405
+== Port di host (LibraryKu) ==
+PASS tidak ada listener 27017 (MongoDB) di host
+PASS tidak ada listener 5000 (Flask) di host
+PASS 8081 hanya mendengarkan di 127.0.0.1 (Nginx LibraryKu, tidak terbuka ke jaringan)
+[bersih-bersih] 8 buku uji dihapus
+
+RINGKASAN: 25 PASS, 0 FAIL dari 25
+
+>>> python3 scripts/test_akses.py http://127.0.0.1:55081
+== Membaca tanpa login ==
+PASS GET /api/sql/health -> 200 | HTTP 200
+PASS GET /api/nosql/health -> 200 | HTTP 200
+PASS GET /api/sql/books -> 200 | HTTP 200
+PASS GET /api/nosql/books -> 200 | HTTP 200
+PASS GET /api/health -> 200 | HTTP 200
+PASS GET /api/books -> 200 | HTTP 200
+PASS halaman utama -> 200
+PASS tidak ada lagi pemeriksa login (/api/auth-check -> 404 JSON) | HTTP 404
+== Menulis tanpa login berhasil di kedua database (dengan header aplikasi) ==
+PASS sql POST tanpa login -> 201 | HTTP 201
+PASS sql GET id baru -> 200 | HTTP 200
+PASS sql PUT tanpa login -> 200 | HTTP 200
+PASS sql DELETE tanpa login -> 200 | HTTP 200
+PASS sql data benar-benar terhapus (GET 404) | HTTP 404
+PASS nosql POST tanpa login -> 201 | HTTP 201
+PASS nosql GET id baru -> 200 | HTTP 200
+PASS nosql PUT tanpa login -> 200 | HTTP 200
+PASS nosql DELETE tanpa login -> 200 | HTTP 200
+PASS nosql data benar-benar terhapus (GET 404) | HTTP 404
+== Perlindungan CSRF (header X-Requested-With wajib untuk tulis) ==
+PASS POST /api/sql/books tanpa header aplikasi -> 403 JSON | HTTP 403
+PASS PUT /api/sql/books/1 tanpa header aplikasi -> 403 JSON | HTTP 403
+PASS DELETE /api/nosql/books/507f1f77bcf86cd799439011 tanpa header aplikasi -> 403 JSON | HTTP 403
+PASS POST /api/nosql/books tanpa header aplikasi -> 403 JSON | HTTP 403
+PASS POST /api/books tanpa header aplikasi -> 403 JSON | HTTP 403
+PASS POST ala form (text/plain) -> 400, tidak membuat data | HTTP 400
+PASS preflight CORS lintas-origin tidak diberi izin | HTTP 403
+== Galat API selalu JSON (bukan halaman HTML) ==
+PASS GET /api/sql/tidak-ada -> 404 JSON | HTTP 404
+PASS GET /api/nosql/tidak-ada -> 404 JSON | HTTP 404
+PASS GET /api/sql/books/abc -> 404 JSON | HTTP 404
+PASS PUT /api/sql/books -> 405 JSON | HTTP 405
+PASS DELETE /api/nosql/books -> 405 JSON | HTTP 405
+PASS PATCH /api/sql/books/1 -> 405 JSON | HTTP 405
+PASS POST JSON rusak -> 400 JSON | HTTP 400
+PASS validasi menolak year boolean -> 400 | HTTP 400
+PASS validasi menolak stok negatif -> 400 | HTTP 400
+PASS validasi menolak judul spasi -> 400 | HTTP 400
+PASS validasi menolak year string -> 400 | HTTP 400
+PASS validasi menolak stok desimal -> 400 | HTTP 400
+== Pembatasan laju untuk operasi tulis (data tidak dibuat: badan kosong) ==
+PASS rentetan tulis dibatasi: ada 429 | 21x400, 39x429
+PASS balasan 429 berformat JSON + Retry-After | HTTP 400
+PASS 30 pembacaan cepat tetap normal (batas baca longgar) | 30x200
+PASS tulis normal pulih setelah jeda
+== Header keamanan pada semua jenis respons ==
+PASS header keamanan lengkap pada respons GET 200 | lengkap
+PASS header keamanan lengkap pada respons 400 | lengkap
+PASS header keamanan lengkap pada respons 403 | lengkap
+PASS header keamanan lengkap pada respons 404 | lengkap
+PASS Server tidak menampilkan versi | nginx
+PASS badan 40 KB ditolak (413) | HTTP 413
+== Port ==
+PASS 8081 hanya mendengarkan di 127.0.0.1 (tidak di 0.0.0.0/[::]) | 127.0.0.1:8081
+PASS tidak ada listener 27017/5432/5000 milik LibraryKu di antarmuka publik
+
+RINGKASAN: 49 PASS, 0 FAIL dari 49
+
+=== 6. Tampilan (Firefox): halaman Peminjaman dan regresi UI katalog ===
+
+>>> env LIBRARYKU_BASE=http://127.0.0.1:55081 python3 scripts/run_ui_peminjaman.py /tmp/tmp.cosgLmrYIy/ui_peminjaman.txt
+PASS mode awal SQL: menu Peminjaman terlihat
+PASS halaman peminjaman tampil, formulir terbuka
+PASS pilihan buku memuat buku uji dengan stok 2 | [UJI-UI] Buku Pinjam (stok 2)
+PASS tanggal pinjam bawaan hari ini dan batas minimal mengikuti | 2026-11-17 / 2026-11-17
+PASS kirim kosong: galat tampil di kolom wajib, tidak ada pinjaman baru
+PASS NIM berisi huruf ditolak di formulir | NIM harus angka saja, 5 sampai 20 digit.
+PASS batas sebelum tanggal pinjam ditolak di formulir | Batas pengembalian tidak boleh sebelum tanggal pinjam.
+PASS pinjaman baru tampil di tabel dengan status Dipinjam | [UJI-UI] Buku PinjamSiti FiktifS1TT-UJI-01009988776617 Nov 202624 Nov 2026DipinjamKembalikan
+PASS NIM tampil utuh dengan nol di depan
+PASS stok di pilihan buku berkurang menjadi 1 | [UJI-UI] Buku Pinjam (stok 1)
+PASS formulir dikosongkan setelah berhasil (nama, NIM, batas)
+PASS setelah Kembalikan: status Dikembalikan dan tanggal aktual terisi | 17 Nov 2026
+PASS stok kembali menjadi 2 | [UJI-UI] Buku Pinjam (stok 2)
+PASS buku bersetok 0 tidak bisa dipilih | [UJI-UI] Buku Pinjam (stok habis)
+PASS buku dihapus: judul tetap ada di riwayat
+PASS mode NoSQL: menu Peminjaman disembunyikan
+PASS mode NoSQL: halaman menolak dengan pesan dan tombol pindah ke SQL | Peminjaman hanya tersedia di mode SQL (PostgreSQL). Pindah ke mode SQL untuk memakainya.
+PASS tombol pindah ke SQL membuka formulir kembali
+PASS tanpa login petugas (401): halaman terkunci dengan pesan khusus petugas | Halaman ini khusus petugas. Masuk dengan nama pengguna dan k
+PASS tidak ada data peminjam tampil saat terkunci
+PASS setelah login (tombol Masuk): riwayat tampil
+PASS tanpa galat JavaScript
+
+RINGKASAN UI peminjaman: 22 PASS, 0 FAIL
+UI katalog (regresi): 40 PASS, 0 FAIL
+
+=== 7. MODE LOGIN PETUGAS diaktifkan (satu baris LOANS_AUTH diubah): semua endpoint terkunci ===
+ Container libraryku-uji-frontend-1  Recreate
+ Container libraryku-uji-frontend-1  Recreated
+ Container libraryku-uji-frontend-1  Starting
+ Container libraryku-uji-frontend-1  Started
+
+>>> python3 scripts/test_peminjaman.py http://127.0.0.1:55081 akses
+== Mode login petugas diaktifkan: semua endpoint peminjaman terkunci tanpa login ==
+PASS GET /api/sql/loans tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS GET /api/loans tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS POST /api/sql/loans tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS POST /api/loans tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS POST /api/sql/loans/1/return tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS POST /api/loans/1/return tanpa login -> 401 JSON + WWW-Authenticate | HTTP 401
+PASS kata sandi salah -> 401 | HTTP 401
+PASS tulis tanpa login dan tanpa header aplikasi -> 403 (tidak membocorkan apa pun) | HTTP 403
+PASS GET dengan login petugas -> 200 | HTTP 200
+PASS jalur langsung /api/loans dengan login -> 200 | HTTP 200
+PASS login benar tetapi tanpa header aplikasi -> 403 | HTTP 403
+PASS mode NoSQL tidak punya fitur peminjaman -> 404 JSON | HTTP 404
+== Dashboard dan katalog publik tetap terbuka ==
+PASS GET / tanpa login -> 200 | HTTP 200
+PASS GET /api/sql/books tanpa login -> 200 | HTTP 200
+PASS GET /api/nosql/books tanpa login -> 200 | HTTP 200
+PASS GET /api/sql/health tanpa login -> 200 | HTTP 200
+PASS ubah buku katalog tanpa login tetap 200 (perilaku lama) | HTTP 200
+PASS hapus buku katalog tanpa login tetap 200 (perilaku lama) | HTTP 200
+
+RINGKASAN akses: 18 PASS, 0 FAIL dari 18
+
+=== 8. Gagal tertutup: login aktif tetapi berkas login petugas tidak ada ===
+ Container libraryku-uji-frontend-1  Recreate
+ Container libraryku-uji-frontend-1  Recreated
+ Container libraryku-uji-frontend-1  Starting
+ Container libraryku-uji-frontend-1  Started
+
+>>> python3 scripts/test_peminjaman.py http://127.0.0.1:55081 failclosed
+== Gagal tertutup: berkas login petugas tidak ada ==
+PASS GET /api/sql/loans (dengan login) -> 503 pesan jelas, bukan data | HTTP 503
+PASS GET /api/sql/loans (tanpa login) -> 401, bukan data | HTTP 401
+PASS POST /api/sql/loans (dengan login) -> 503 pesan jelas, bukan data | HTTP 503
+PASS POST /api/sql/loans (tanpa login) -> 401, bukan data | HTTP 401
+PASS GET /api/loans (dengan login) -> 503 pesan jelas, bukan data | HTTP 503
+PASS GET /api/loans (tanpa login) -> 401, bukan data | HTTP 401
+PASS katalog publik tetap 200 | HTTP 200
+PASS halaman utama tetap 200 | HTTP 200
+
+RINGKASAN failclosed: 8 PASS, 0 FAIL dari 8
+
+=== RINGKASAN: 0 tahap gagal ===
+SEMUA TAHAP LULUS
+
+--- membersihkan stack uji ---
+[OK] stack uji, volume uji, dan image uji dihapus. Hasil: bukti/peminjaman/uji_20261117_145112.txt
