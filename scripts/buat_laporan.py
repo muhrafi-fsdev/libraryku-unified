@@ -166,7 +166,7 @@ table(["Komponen", "Pilihan kasus"], [
 para("Disusun oleh", align=WD_ALIGN_PARAGRAPH.CENTER, size=11, color="4A5F68", before=20, after=2)
 para("Muhammad Rafi Priyo Sembodo", align=WD_ALIGN_PARAGRAPH.CENTER, size=15, bold=True, after=0)
 para("NIM 101072300038  |  Kelas S1TT-KJ-23-04", align=WD_ALIGN_PARAGRAPH.CENTER, size=11, after=8)
-para("Anggota kelompok: Atilla Pramudya Nugroho (101072300039), Muhammad Aprilio Rizal Arifin (101072300040), Aji Eka Saputra (101072300071)", align=WD_ALIGN_PARAGRAPH.CENTER, size=10, after=14)
+para("Anggota kelompok: Atilla Pramudya Nugroho (101072300039), Muhammad Aprilio Rizal Arifin (101072300040), Aji Eka Saputra (101072300071), Panji Ramadhan (101072330134)", align=WD_ALIGN_PARAGRAPH.CENTER, size=10, after=14)
 para(f"Kode sumber: {REPO}", align=WD_ALIGN_PARAGRAPH.CENTER, size=10, after=2)
 para(f"Website (HTTPS publik): {URL}/", align=WD_ALIGN_PARAGRAPH.CENTER, size=10, after=18)
 para("TELKOM UNIVERSITY  |  2026", align=WD_ALIGN_PARAGRAPH.CENTER, size=10, bold=True, color="4A5F68")
@@ -195,7 +195,7 @@ table(["Komponen", "Isi"], [
     ["Repositori kode", REPO]], [4.2, 11.8], size=10)
 table(["Anggota kelompok", "NIM"], [
     ["Muhammad Rafi Priyo Sembodo (penyusun)", "101072300038"], ["Atilla Pramudya Nugroho", "101072300039"],
-    ["Muhammad Aprilio Rizal Arifin", "101072300040"], ["Aji Eka Saputra", "101072300071"]], [11, 5], size=10)
+    ["Muhammad Aprilio Rizal Arifin", "101072300040"], ["Aji Eka Saputra", "101072300071"], ["Panji Ramadhan", "101072330134"]], [11, 5], size=10)
 
 # ======================= 2. DESKRIPSI =======================
 h1("2. Deskripsi Proyek")

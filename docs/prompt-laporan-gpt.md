@@ -37,7 +37,7 @@ ATURAN KERAS (jangan dilanggar)
 
 IDENTITAS
 - Penyusun: Muhammad Rafi Priyo Sembodo, NIM 101072300038, kelas S1TT-KJ-23-04
-- Anggota: Atilla Pramudya Nugroho (101072300039), Muhammad Aprilio Rizal Arifin (101072300040), Aji Eka Saputra (101072300071)
+- Anggota: Atilla Pramudya Nugroho (101072300039), Muhammad Aprilio Rizal Arifin (101072300040), Aji Eka Saputra (101072300071), Panji Ramadhan (101072330134)
 - Mata kuliah: Cloud Computing, Project 1. Kasus No. 15: Perpustakaan, Microservices (Docker), SQL
 - Repositori: https://github.com/muhrafi-fsdev/libraryku-unified
 - Alamat publik: https://libraryku-kali.tail342a2f.ts.net/

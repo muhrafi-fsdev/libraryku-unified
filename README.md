@@ -10,6 +10,7 @@ Kelompok kami (kelas S1TT-KJ-23-04):
 | Atilla Pramudya Nugroho | 101072300039 |
 | Muhammad Aprilio Rizal Arifin | 101072300040 |
 | Aji Eka Saputra | 101072300071 |
+| Panji Ramadhan | 101072330134 |
 
 Kasus yang kami kerjakan adalah nomor 15 di tabel PDF penugasan: Perpustakaan, Microservices (Docker), SQL. Versi MongoDB kami tambahkan sebagai pengembangan di aplikasi yang sama, bukan sebagai tugas kedua. Nomor kelompok resminya masih perlu kami pastikan ke dosen.
 
