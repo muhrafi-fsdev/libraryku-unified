@@ -2,12 +2,14 @@
 import logging
 import os
 from contextlib import contextmanager
+from datetime import datetime, timedelta, timezone
 
 import psycopg2
+import psycopg2.errors
 from psycopg2.extras import RealDictCursor
 from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
-from validation import validate_book
+from validation import validate_book, validate_loan
 
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
@@ -39,6 +41,12 @@ def serialize_book(record):
 def handle_database_error(error):
     app.logger.exception("Database tidak tersedia: %s", error)
     return jsonify({"error": "Database tidak dapat diakses. Periksa container database."}), 503
+
+
+@app.errorhandler(psycopg2.errors.UndefinedTable)
+def handle_missing_table(error):
+    app.logger.error("Tabel peminjaman belum ada: %s", error)
+    return jsonify({"error": "Tabel peminjaman belum dibuat. Terapkan migrasi database/migrations/002_peminjaman.sql (./scripts/migrasi.sh)."}), 503
 
 
 @app.errorhandler(HTTPException)
@@ -122,8 +130,91 @@ def update_book(book_id):
 @app.delete("/api/books/<int:book_id>")
 def delete_book(book_id):
     with db_cursor() as cursor:
+        # Kunci baris buku: serial dengan peminjaman baru, sehingga buku tidak bisa dipinjam dan dihapus bersamaan.
+        cursor.execute("SELECT id FROM books WHERE id = %s FOR UPDATE", (book_id,))
+        if cursor.fetchone() is None:
+            return jsonify({"error": "Buku tidak ditemukan."}), 404
+        cursor.execute("SELECT to_regclass('public.loans') IS NOT NULL AS ada")
+        if cursor.fetchone()["ada"]:
+            cursor.execute("SELECT count(*) AS n FROM loans WHERE book_id = %s AND returned_date IS NULL", (book_id,))
+            dipinjam = cursor.fetchone()["n"]
+            if dipinjam:
+                return jsonify({"error": f"Buku masih dipinjam ({dipinjam} eksemplar). Kembalikan dulu sebelum menghapus buku."}), 409
         cursor.execute("DELETE FROM books WHERE id = %s RETURNING id", (book_id,))
-        record = cursor.fetchone()
-    if record is None:
-        return jsonify({"error": "Buku tidak ditemukan."}), 404
+        cursor.fetchone()
     return jsonify({"message": "Buku berhasil dihapus.", "id": book_id})
+
+
+# ---------------------------------------------------------------------------
+# Peminjaman dan pengembalian (khusus SQL). Nginx menerjemahkan /api/sql/loans menjadi /api/loans dan
+# mewajibkan login petugas untuk SEMUA metode, karena datanya berisi nama, kelas, dan NIM.
+# ---------------------------------------------------------------------------
+WIB = timezone(timedelta(hours=7))  # Indonesia Barat tidak memakai waktu musim panas
+LOAN_COLUMNS = "id, book_id, book_title, borrower_name, borrower_class, borrower_nim, loan_date, due_date, returned_date, note"
+
+
+def today_wib():
+    return datetime.now(WIB).date()
+
+
+def serialize_loan(record):
+    loan = {key: record[key] for key in ("id", "book_id", "book_title", "borrower_name", "borrower_class", "borrower_nim", "note")}
+    for key in ("loan_date", "due_date", "returned_date"):
+        loan[key] = record[key].isoformat() if record[key] else None
+    loan["status"] = "Dikembalikan" if record["returned_date"] else "Dipinjam"
+    return loan
+
+
+@app.get("/api/loans")
+def list_loans():
+    with db_cursor() as cursor:
+        cursor.execute(f"SELECT {LOAN_COLUMNS} FROM loans ORDER BY id DESC")
+        records = cursor.fetchall()
+    loans = [serialize_loan(record) for record in records]
+    return jsonify({"data": loans, "total": len(loans)})
+
+
+@app.post("/api/loans")
+def create_loan():
+    cleaned, errors = validate_loan(request.get_json(silent=True))
+    if errors:
+        return jsonify({"error": "Data peminjaman tidak valid.", "details": errors}), 400
+    with db_cursor() as cursor:
+        # Kunci baris buku sampai transaksi selesai: dua permintaan bersamaan tidak bisa sama-sama mengambil eksemplar terakhir.
+        cursor.execute("SELECT id, title, stock FROM books WHERE id = %s FOR UPDATE", (cleaned["book_id"],))
+        book = cursor.fetchone()
+        if book is None:
+            return jsonify({"error": "Buku tidak ditemukan."}), 404
+        if book["stock"] <= 0:
+            return jsonify({"error": "Stok buku ini habis, tidak bisa dipinjam."}), 409
+        cursor.execute("UPDATE books SET stock = stock - 1 WHERE id = %s", (book["id"],))
+        cursor.execute(
+            "INSERT INTO loans (book_id, book_title, borrower_name, borrower_class, borrower_nim, loan_date, due_date, note) "
+            f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING {LOAN_COLUMNS}",
+            (book["id"], book["title"], cleaned["borrower_name"], cleaned["borrower_class"], cleaned["borrower_nim"],
+             cleaned["loan_date"], cleaned["due_date"], cleaned["note"]),
+        )
+        record = cursor.fetchone()
+    return jsonify({"message": "Peminjaman dicatat.", "data": serialize_loan(record)}), 201
+
+
+@app.post("/api/loans/<int:loan_id>/return")
+def return_loan(loan_id):
+    with db_cursor() as cursor:
+        cursor.execute("SELECT book_id FROM loans WHERE id = %s", (loan_id,))
+        found = cursor.fetchone()
+        if found is None:
+            return jsonify({"error": "Data peminjaman tidak ditemukan."}), 404
+        # Urutan kunci selalu buku lalu pinjaman (sama dengan peminjaman baru) agar tidak saling tunggu.
+        if found["book_id"] is not None:
+            cursor.execute("SELECT id FROM books WHERE id = %s FOR UPDATE", (found["book_id"],))
+        cursor.execute(f"SELECT {LOAN_COLUMNS} FROM loans WHERE id = %s FOR UPDATE", (loan_id,))
+        loan = cursor.fetchone()
+        if loan["returned_date"] is not None:
+            return jsonify({"error": "Buku ini sudah dikembalikan sebelumnya."}), 409
+        returned = max(today_wib(), loan["loan_date"])  # tanggal pinjam bisa diisi lebih maju dari hari ini
+        cursor.execute(f"UPDATE loans SET returned_date = %s WHERE id = %s RETURNING {LOAN_COLUMNS}", (returned, loan_id))
+        record = cursor.fetchone()
+        if loan["book_id"] is not None:
+            cursor.execute("UPDATE books SET stock = LEAST(stock + 1, 1000000) WHERE id = %s", (loan["book_id"],))
+    return jsonify({"message": "Buku dikembalikan.", "data": serialize_loan(record)})

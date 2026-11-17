@@ -14,7 +14,7 @@ ok('awal: SQL punya data asli, NoSQL terpisah', sqlN0>=3, `sql=${sqlN0} nosql=${
 // 1 default & navigasi
 ok('mode awal SQL (radio, banner, status)', radio('dbmode-dash','sql').checked && /PostgreSQL/.test($('modeBanner').textContent) && /PostgreSQL terhubung/.test($('statusText').textContent) && document.body.dataset.mode==='sql', $('statusText').textContent);
 const navs=[...document.querySelectorAll('.nav a')].map(a=>a.textContent);
-ok('navigasi 5 menu', navs.join()==='Beranda,Katalog,Dashboard,Perbandingan,Tentang', navs.join());
+ok('navigasi 6 menu', navs.join()==='Beranda,Katalog,Dashboard,Peminjaman,Perbandingan,Tentang', navs.join());
 for(const r of ['katalog','dashboard','perbandingan','tentang','beranda']){ await go(r); const v=[...document.querySelectorAll('[data-view]')].filter(x=>!x.hidden).map(x=>x.dataset.view).join(); ok('rute '+r, v===r && document.querySelector('.nav [aria-current]').dataset.route===r && document.activeElement===document.querySelector(`[data-view="${r}"] h1`)); }
 // 2 Perbandingan: data nyata
 await go('perbandingan'); await sleep(1500);

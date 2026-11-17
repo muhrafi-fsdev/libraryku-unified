@@ -55,6 +55,7 @@ const ROUTES = {
   beranda: 'Beranda',
   katalog: 'Katalog',
   dashboard: 'Dashboard',
+  peminjaman: 'Peminjaman',
   perbandingan: 'Perbandingan',
   tentang: 'Tentang',
 };
@@ -247,6 +248,7 @@ function applyRoute({ moveFocus }) {
     else link.removeAttribute('aria-current');
   });
   if (route === 'perbandingan') refreshComparison();
+  if (route === 'peminjaman') enterLoans();
   document.title = route === 'beranda' ? 'LibraryKu | Perpustakaan digital kampus' : `${ROUTES[route]} | LibraryKu`;
   if (moveFocus) {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -1003,7 +1005,237 @@ async function measureLatency() {
 $('cmpRefresh').addEventListener('click', refreshComparison);
 $('cmpMeasure').addEventListener('click', measureLatency);
 
+/* ---------- Peminjaman (khusus SQL dan khusus petugas) ---------- */
+
+const loanEls = {
+  gate: $('loanGate'), gateText: $('loanGateText'), gateBtn: $('loanGateBtn'), body: $('loanBody'),
+  form: $('loanForm'), submit: $('loanSubmit'), formError: $('loanFormError'),
+  book: $('loanBook'), date: $('loanDate'), due: $('loanDue'),
+  table: $('loanTable'), count: $('loanCount'), refresh: $('loanRefresh'),
+};
+const LOAN_FIELDS = { book_id: 'loanBook', borrower_name: 'loanName', borrower_class: 'loanClass', borrower_nim: 'loanNim', loan_date: 'loanDate', due_date: 'loanDue', note: 'loanNote' };
+let loans = [];
+let loanSeq = 0;
+let loanSubmitting = false;
+const returningIds = new Set();
+
+function todayIso() {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const [year, month, day] = iso.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function showLoanGate(text, buttonLabel, onClick) {
+  loanEls.body.hidden = true;
+  loanEls.gate.hidden = false;
+  loanEls.gateText.textContent = text;
+  loanEls.gateBtn.textContent = buttonLabel;
+  loanEls.gateBtn.onclick = onClick;
+}
+
+function hideLoanGate() {
+  loanEls.gate.hidden = true;
+  loanEls.body.hidden = false;
+}
+
+function clearLoanErrors() {
+  Object.values(LOAN_FIELDS).forEach((id) => {
+    const message = $(`${id}-error`);
+    message.hidden = true;
+    message.textContent = '';
+    $(id).removeAttribute('aria-invalid');
+  });
+  loanEls.formError.hidden = true;
+  loanEls.formError.textContent = '';
+}
+
+function showLoanErrors(details) {
+  let first = null;
+  Object.entries(details || {}).forEach(([key, text]) => {
+    const id = LOAN_FIELDS[key];
+    if (!id) return;
+    const message = $(`${id}-error`);
+    message.textContent = text;
+    message.hidden = false;
+    $(id).setAttribute('aria-invalid', 'true');
+    if (!first) first = $(id);
+  });
+  if (first) first.focus();
+  return Boolean(first);
+}
+
+function renderLoanBooks(list) {
+  const chosen = loanEls.book.value;
+  loanEls.book.replaceChildren(el('option', '', 'Pilih buku'));
+  loanEls.book.firstChild.value = '';
+  list.forEach((book) => {
+    const option = el('option', '', `${book.title} (stok ${numberFormat.format(book.stock)})`);
+    option.value = String(book.id);
+    if (book.stock <= 0) { option.disabled = true; option.textContent = `${book.title} (stok habis)`; }
+    loanEls.book.appendChild(option);
+  });
+  if (chosen && [...loanEls.book.options].some((o) => o.value === chosen && !o.disabled)) loanEls.book.value = chosen;
+}
+
+function loanCell(text, className, label) {
+  const cell = el('td', className, text);
+  if (label) cell.dataset.label = label;
+  return cell;
+}
+
+function renderLoans() {
+  const active = loans.filter((loan) => !loan.returned_date).length;
+  loanEls.count.textContent = loans.length === 0 ? 'Belum ada peminjaman.' : `${numberFormat.format(loans.length)} peminjaman, ${numberFormat.format(active)} masih dipinjam`;
+  loanEls.table.replaceChildren();
+  if (loans.length === 0) {
+    const row = el('tr', 'state-row');
+    const cell = el('td', '', 'Riwayat kosong. Catat peminjaman pertama lewat formulir di atas.');
+    cell.colSpan = 9;
+    row.appendChild(cell);
+    loanEls.table.appendChild(row);
+    return;
+  }
+  loans.forEach((loan) => {
+    const row = el('tr');
+    row.dataset.loanId = String(loan.id);
+    row.appendChild(loanCell(loan.book_title, 'col-title'));
+    row.appendChild(loanCell(loan.borrower_name, '', 'Peminjam'));
+    row.appendChild(loanCell(loan.borrower_class, '', 'Kelas'));
+    row.appendChild(loanCell(loan.borrower_nim, 'col-nim', 'NIM'));
+    row.appendChild(loanCell(formatDate(loan.loan_date), '', 'Dipinjam'));
+    row.appendChild(loanCell(formatDate(loan.due_date), '', 'Batas'));
+    row.appendChild(loan.returned_date ? loanCell(formatDate(loan.returned_date), '', 'Dikembalikan') : loanCell('', 'col-empty'));
+    const status = el('td');
+    status.appendChild(el('span', loan.returned_date ? 'tag tag-done' : 'tag tag-loan', loan.status));
+    row.appendChild(status);
+    const action = el('td', 'col-actions');
+    if (!loan.returned_date) {
+      const button = el('button', 'btn btn-secondary btn-sm', 'Kembalikan');
+      button.type = 'button';
+      button.dataset.returnId = String(loan.id);
+      button.setAttribute('aria-label', `Kembalikan buku ${loan.book_title} dari ${loan.borrower_name}`);
+      button.disabled = returningIds.has(loan.id);
+      button.addEventListener('click', () => returnLoan(loan, button));
+      action.appendChild(button);
+    }
+    row.appendChild(action);
+    loanEls.table.appendChild(row);
+  });
+}
+
+async function loadLoans() {
+  const seq = ++loanSeq;
+  loanEls.count.textContent = 'Memuat riwayat...';
+  try {
+    const [loanData, bookData] = await Promise.all([api('/api/sql/loans'), api('/api/sql/books')]);
+    if (seq !== loanSeq || mode !== 'sql' || route !== 'peminjaman') return;
+    loans = loanData.data;
+    hideLoanGate();
+    renderLoanBooks(bookData.data);
+    renderLoans();
+  } catch (error) {
+    if (seq !== loanSeq || mode !== 'sql') return;
+    if (error.status === 401) {
+      showLoanGate('Halaman ini khusus petugas. Masuk dengan nama pengguna dan kata sandi petugas untuk melihat dan mencatat peminjaman.', 'Masuk sebagai petugas', loadLoans);
+    } else {
+      showLoanGate(error.message, 'Coba lagi', loadLoans);
+    }
+  }
+}
+
+function enterLoans() {
+  if (mode !== 'sql') {
+    loanSeq += 1;
+    showLoanGate('Peminjaman hanya tersedia di mode SQL (PostgreSQL). Pindah ke mode SQL untuk memakainya.', 'Pindah ke mode SQL', () => setMode('sql'));
+    return;
+  }
+  if (!loanEls.date.value) loanEls.date.value = todayIso();
+  loanEls.due.min = loanEls.date.value;
+  loadLoans();
+}
+
+function readLoanForm() {
+  const form = loanEls.form.elements;
+  return {
+    book_id: form.book_id.value ? Number(form.book_id.value) : null,
+    borrower_name: form.borrower_name.value.trim(),
+    borrower_class: form.borrower_class.value.trim(),
+    borrower_nim: form.borrower_nim.value.trim(),
+    loan_date: form.loan_date.value,
+    due_date: form.due_date.value,
+    note: form.note.value.trim() || null,
+  };
+}
+
+function checkLoanForm(values) {
+  const errors = {};
+  if (!values.book_id) errors.book_id = 'Pilih buku yang akan dipinjam.';
+  if (!values.borrower_name) errors.borrower_name = 'Nama lengkap wajib diisi.';
+  if (!values.borrower_class) errors.borrower_class = 'Kelas wajib diisi.';
+  if (!/^[0-9]{5,20}$/.test(values.borrower_nim)) errors.borrower_nim = 'NIM harus angka saja, 5 sampai 20 digit.';
+  if (!values.loan_date) errors.loan_date = 'Tanggal pinjam wajib diisi.';
+  if (!values.due_date) errors.due_date = 'Batas pengembalian wajib diisi.';
+  else if (values.loan_date && values.due_date < values.loan_date) errors.due_date = 'Batas pengembalian tidak boleh sebelum tanggal pinjam.';
+  return errors;
+}
+
+loanEls.form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  if (loanSubmitting || mode !== 'sql') return;
+  clearLoanErrors();
+  const values = readLoanForm();
+  const problems = checkLoanForm(values);
+  if (Object.keys(problems).length) { showLoanErrors(problems); return; }
+  loanSubmitting = true;
+  loanEls.submit.disabled = true;
+  loanEls.submit.textContent = 'Menyimpan...';
+  try {
+    await api('/api/sql/loans', { method: 'POST', body: JSON.stringify(values) });
+    const form = loanEls.form.elements;
+    ['book_id', 'borrower_name', 'borrower_class', 'borrower_nim', 'due_date', 'note'].forEach((name) => { form[name].value = ''; });
+    showToast('Peminjaman dicatat. Stok buku berkurang satu.');
+    await loadLoans();
+  } catch (error) {
+    if (!showLoanErrors(error.details)) {
+      loanEls.formError.textContent = error.message;
+      loanEls.formError.hidden = false;
+    }
+    if (error.status === 409) loadLoans(); // stok atau status berubah di tempat lain
+  } finally {
+    loanSubmitting = false;
+    loanEls.submit.disabled = false;
+    loanEls.submit.textContent = 'Catat peminjaman';
+  }
+});
+
+loanEls.date.addEventListener('change', () => {
+  loanEls.due.min = loanEls.date.value;
+});
+loanEls.refresh.addEventListener('click', loadLoans);
+
+async function returnLoan(loan, button) {
+  if (returningIds.has(loan.id)) return;
+  returningIds.add(loan.id);
+  button.disabled = true;
+  button.textContent = 'Memproses...';
+  try {
+    await api(`/api/sql/loans/${loan.id}/return`, { method: 'POST' });
+    showToast(`Buku “${loan.book_title}” dikembalikan. Stok bertambah satu.`);
+  } catch (error) {
+    showToast(error.message, 'error');
+  } finally {
+    returningIds.delete(loan.id);
+    loadLoans();
+  }
+}
+
 /* ---------- Ganti mode database ---------- */
+
 
 function renderModeUi() {
   const info = modeInfo();
@@ -1045,6 +1277,7 @@ function setMode(next) {
   loadBooks();
   checkHealth();
   showToast(`Mode database: ${modeInfo().engine} (${modeInfo().kind}).`);
+  if (route === 'peminjaman') enterLoans();
 }
 
 elements.modeRadios.forEach((radio) => {

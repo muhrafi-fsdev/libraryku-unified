@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#ffffff" />
   <title>LibraryKu | Perpustakaan digital kampus</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b6469'/%3E%3Crect x='7' y='8' width='5' height='16' rx='1' fill='%23fff'/%3E%3Crect x='14' y='6' width='5' height='18' rx='1' fill='%23fff' opacity='.85'/%3E%3Crect x='21' y='10' width='5' height='14' rx='1' fill='%23fff' opacity='.7'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="/style.css?v=12" />
-  <script src="/app.js?v=12" defer></script>
+  <link rel="stylesheet" href="/style.css?v=13" />
+  <script src="/app.js?v=13" defer></script>
 </head>
 <body>
   <a class="skip-link" id="skipLink" href="#main">Lewati ke konten</a>
@@ -39,6 +39,7 @@
         <a href="#beranda" data-route="beranda">Beranda</a>
         <a href="#katalog" data-route="katalog">Katalog</a>
         <a href="#dashboard" data-route="dashboard">Dashboard</a>
+        <a href="#peminjaman" data-route="peminjaman" data-sql-only>Peminjaman</a>
         <a href="#perbandingan" data-route="perbandingan">Perbandingan</a>
         <a href="#tentang" data-route="tentang">Tentang</a>
       </nav>
@@ -207,6 +208,100 @@
             </thead>
             <tbody id="bookTable" role="rowgroup"></tbody>
           </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PEMINJAMAN ================= -->
+    <section class="view" id="view-peminjaman" data-view="peminjaman" aria-labelledby="loanTitle" hidden>
+      <div class="wrap page">
+        <header class="page-head">
+          <h1 id="loanTitle" tabindex="-1">Peminjaman buku</h1>
+          <p class="page-lede">Catat siapa meminjam buku apa, lalu tandai saat buku dikembalikan. Stok berkurang satu saat dipinjam dan bertambah satu saat dikembalikan. Fitur ini hanya ada di mode SQL (PostgreSQL).</p>
+        </header>
+
+        <p class="notice"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-alert"/></svg><span>Khusus petugas. Nama, kelas, dan NIM peminjam hanya bisa dibuka dengan login petugas; browser akan meminta nama pengguna dan kata sandi.</span></p>
+
+        <div class="panel loan-gate" id="loanGate" hidden>
+          <p id="loanGateText"></p>
+          <button class="btn btn-primary" id="loanGateBtn" type="button"></button>
+        </div>
+
+        <div id="loanBody">
+          <div class="panel loan-form-panel">
+            <form id="loanForm" novalidate aria-labelledby="loanFormTitle">
+              <h2 id="loanFormTitle" class="loan-h2">Catat peminjaman baru</h2>
+              <div class="field">
+                <label for="loanBook">Buku</label>
+                <select id="loanBook" name="book_id" required aria-describedby="loanBook-error">
+                  <option value="">Pilih buku</option>
+                </select>
+                <p class="field-error" id="loanBook-error" hidden></p>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="loanName">Nama lengkap</label>
+                  <input id="loanName" name="borrower_name" type="text" maxlength="100" autocomplete="off" required aria-describedby="loanName-error" />
+                  <p class="field-error" id="loanName-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="loanClass">Kelas</label>
+                  <input id="loanClass" name="borrower_class" type="text" maxlength="30" autocomplete="off" required placeholder="Contoh: S1TT-KJ-23-04" aria-describedby="loanClass-error" />
+                  <p class="field-error" id="loanClass-error" hidden></p>
+                </div>
+              </div>
+              <div class="field">
+                <label for="loanNim">NIM</label>
+                <input id="loanNim" name="borrower_nim" type="text" inputmode="numeric" maxlength="20" autocomplete="off" required aria-describedby="loanNim-hint loanNim-error" />
+                <p class="field-hint" id="loanNim-hint">Angka saja, 5 sampai 20 digit. Disimpan sebagai teks, jadi nol di depan tidak hilang.</p>
+                <p class="field-error" id="loanNim-error" hidden></p>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="loanDate">Tanggal pinjam</label>
+                  <input id="loanDate" name="loan_date" type="date" required aria-describedby="loanDate-error" />
+                  <p class="field-error" id="loanDate-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="loanDue">Batas pengembalian</label>
+                  <input id="loanDue" name="due_date" type="date" required aria-describedby="loanDue-error" />
+                  <p class="field-error" id="loanDue-error" hidden></p>
+                </div>
+              </div>
+              <div class="field">
+                <label for="loanNote">Catatan <span class="optional">(boleh kosong)</span></label>
+                <input id="loanNote" name="note" type="text" maxlength="300" autocomplete="off" aria-describedby="loanNote-error" />
+                <p class="field-error" id="loanNote-error" hidden></p>
+              </div>
+              <p class="form-error" id="loanFormError" role="alert" hidden></p>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit" id="loanSubmit">Catat peminjaman</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel">
+            <div class="list-meta">
+              <p id="loanCount" aria-live="polite" aria-atomic="true">Memuat riwayat...</p>
+              <button class="btn btn-secondary btn-sm" id="loanRefresh" type="button">Muat ulang</button>
+            </div>
+            <table class="books loans" role="table" aria-labelledby="loanTitle" id="loanList">
+              <thead role="rowgroup">
+                <tr role="row">
+                  <th role="columnheader" scope="col">Buku</th>
+                  <th role="columnheader" scope="col">Peminjam</th>
+                  <th role="columnheader" scope="col">Kelas</th>
+                  <th role="columnheader" scope="col">NIM</th>
+                  <th role="columnheader" scope="col">Dipinjam</th>
+                  <th role="columnheader" scope="col">Batas</th>
+                  <th role="columnheader" scope="col">Dikembalikan</th>
+                  <th role="columnheader" scope="col">Status</th>
+                  <th role="columnheader" scope="col"><span class="sr-only">Aksi</span></th>
+                </tr>
+              </thead>
+              <tbody id="loanTable" role="rowgroup"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -381,6 +476,7 @@
         <a href="#beranda">Beranda</a>
         <a href="#katalog">Katalog</a>
         <a href="#dashboard">Dashboard</a>
+        <a href="#peminjaman" data-sql-only>Peminjaman</a>
         <a href="#perbandingan">Perbandingan</a>
         <a href="#tentang">Tentang</a>
       </nav>
